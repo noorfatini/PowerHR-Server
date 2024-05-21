@@ -15,8 +15,10 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: '20'
-            - name: Install Dependencies
-              run: npm install
+
+            - name: Load & Cache Dependencies
+              uses: ./.github/actions/cached-deps
+
             - name: Run Lint
               run: npm run lint
 
@@ -28,8 +30,10 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: '20'
-            - name: Install Dependencies
-              run: npm install
+
+            - name: Load & Cache Dependencies
+              uses: ./.github/actions/cached-deps
+
             - name: Run Prettier:Check
               run: npm run prettier:check
 
@@ -42,8 +46,10 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: '20'
-            - name: Install Dependencies
-              run: npm install
+
+            - name: Load & Cache Dependencies
+              uses: ./.github/actions/cached-deps
+
             - name: Run Tests
               run: npm run test
 
