@@ -1,6 +1,6 @@
 import Resume from '../../models/resume/resume.js';
 
-export default async function (fastify, opts) {
+export default async function (fastify) {
     fastify.get('/update', async function (request, reply) {
         try {
             const resume = request.body;

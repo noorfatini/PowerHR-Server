@@ -1,7 +1,7 @@
-export default async function (fastify, opts) {
+export default async function (fastify) {
     // Note: This is a simple example of a route handler.
 
-    fastify.get('/', async function (request, reply) {
+    fastify.get('/', async function () {
         return { root: true };
     });
 
@@ -26,7 +26,7 @@ export default async function (fastify, opts) {
                 },
             },
         },
-        async function (request, reply) {
+        async function () {
             return { root: true };
         },
     );
@@ -61,7 +61,7 @@ export default async function (fastify, opts) {
                 },
             },
         },
-        async function (request, reply) {
+        async function (request) {
             return { id: request.params.id };
         },
     );
@@ -96,7 +96,7 @@ export default async function (fastify, opts) {
                 },
             },
         },
-        async function (request, reply) {
+        async function (request) {
             return { message: request.body.message };
         },
     );

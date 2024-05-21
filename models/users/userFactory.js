@@ -6,7 +6,7 @@ import ApiError from '../../util/ApiError.js';
 
 class UserFactory {
     async createUser(role, args) {
-        const { firstName, lastName, email, gender } = args;
+        const { firstName, lastName, email, gender, password, confirmPassword, companyId, jobTitle } = args;
 
         const userExists = await User.exists({ email });
 
@@ -16,8 +16,6 @@ class UserFactory {
 
         switch (role) {
             case 'applicant':
-                const { password, confirmPassword } = args;
-
                 if (password !== confirmPassword) {
                     throw new ApiError(400, 'Passwords do not match');
                 }
@@ -35,8 +33,6 @@ class UserFactory {
 
                 return new Applicant({ email, firstName, lastName, password, gender });
             case 'employee':
-                const { companyId, jobTitle } = args;
-
                 return new Employee({
                     firstName,
                     lastName,

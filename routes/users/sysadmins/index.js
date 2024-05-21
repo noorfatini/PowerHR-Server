@@ -1,7 +1,7 @@
 import UserFactory from '../../../models/users/userFactory.js';
 import ApiError from '../../../util/ApiError.js';
 
-export default async function (fastify, opts) {
+export default async function (fastify) {
     fastify.post(
         '/register',
         {
