@@ -1,0 +1,17 @@
+{
+    "env": {
+        "browser": false,
+        "es6": true,
+        "node": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module"
+    },
+    "plugins": ["jest"],
+    "extends": ["eslint:recommended", "plugin:jest/recommended", "prettier"],
+    "rules": {
+        // Add specific JavaScript rules as needed or modify according to your preferences
+        // Example: "semi": ["error", "never"] to turn off semicolons
+    }
+}
