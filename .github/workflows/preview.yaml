@@ -19,12 +19,7 @@ jobs:
               with:
                   node-version: '20'
             - name: Load & Cache Dependencies
-              uses: actions/cache@v4
-              with:
-                  path: ~/.npm
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-node-
+              uses: ./.github/actions/cached-deps
 
     lint-check:
         runs-on: ubuntu-latest
