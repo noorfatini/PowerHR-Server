@@ -1,12 +1,45 @@
-import { test } from 'node:test';
-import * as assert from 'node:assert';
-import { build } from '../helper.js';
+import { describe, it, expect } from 'vitest';
+import app from '../setup.js';
 
-test('default root route', async (t) => {
-    const app = await build(t);
+describe.concurrent('routes/root.js', () => {
+    it('should return id', async () => {
+        const response = await app.inject({
+            method: 'GET',
+            url: '/param/123',
+        });
 
-    const res = await app.inject({
-        url: '/',
+        expect(response.statusCode).toBe(200);
+        expect(response.json()).toEqual({ id: '123' });
     });
-    assert.deepStrictEqual(JSON.parse(res.payload), { root: true });
+
+    it('should return root', async () => {
+        const response = await app.inject({
+            method: 'GET',
+            url: '/',
+        });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.json()).toEqual({ root: true });
+    });
+
+    it('should return root', async () => {
+        const response = await app.inject({
+            method: 'GET',
+            url: '/basic',
+        });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.json()).toEqual({ root: true });
+    });
+
+    it('should return body', async () => {
+        const response = await app.inject({
+            method: 'POST',
+            url: '/body',
+            payload: { message: 'Hello' },
+        });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.json()).toEqual({ message: 'Hello' });
+    });
 });
