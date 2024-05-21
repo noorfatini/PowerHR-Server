@@ -7,8 +7,21 @@ on:
         branches-ignore:
             - main
 jobs:
+    Build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Install Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
+
+            - name: Load & Cache Dependencies
+              uses: ./.github/actions/cached-deps
+
     Lint-Check:
         runs-on: ubuntu-latest
+        needs: [Build]
         steps:
             - uses: actions/checkout@v4
             - name: Install Node.js
@@ -22,8 +35,9 @@ jobs:
             - name: Run Lint
               run: npm run lint
 
-    Prettier-Check:
+    Format-Check:
         runs-on: ubuntu-latest
+        needs: [Build]
         steps:
             - uses: actions/checkout@v4
             - name: Install Node.js
@@ -39,7 +53,7 @@ jobs:
 
     Test:
         runs-on: ubuntu-latest
-        needs: [Lint-Check, Prettier-Check]
+        needs: [Lint-Check, Format-Check]
         steps:
             - uses: actions/checkout@v4
             - name: Install Node.js
