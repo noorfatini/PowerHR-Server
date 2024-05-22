@@ -1,10 +1,34 @@
 export default async function (fastify) {
     // Note: This is a simple example of a route handler.
 
-    fastify.get('/', async function () {
-        const ENV = process.env.NODE_ENV;
-        return { root: true, env: ENV };
-    });
+    fastify.get(
+        '/',
+        {
+            schema: {
+                description: 'Example of root route',
+                tags: ['Root'],
+                summary: 'Root',
+                response: {
+                    200: {
+                        description: 'Successful response',
+                        type: 'object',
+                        properties: {
+                            root: {
+                                type: 'boolean',
+                            },
+                            env: {
+                                type: 'string',
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        async function () {
+            const ENV = process.env.NODE_ENV;
+            return { root: true, env: ENV };
+        },
+    );
 
     // Scheme for basic route
     fastify.get(
@@ -12,7 +36,7 @@ export default async function (fastify) {
         {
             schema: {
                 description: 'Example of root route',
-                tags: ['root'],
+                tags: ['Root'],
                 summary: 'Root',
                 response: {
                     200: {
@@ -38,7 +62,7 @@ export default async function (fastify) {
         {
             schema: {
                 description: 'Example of parameter route',
-                tags: ['root'],
+                tags: ['Root'],
                 summary: 'Test',
                 params: {
                     type: 'object',
@@ -73,7 +97,7 @@ export default async function (fastify) {
         {
             schema: {
                 description: 'Example of body route',
-                tags: ['root'],
+                tags: ['Root'],
                 summary: 'Body',
                 body: {
                     type: 'object',
