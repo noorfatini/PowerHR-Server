@@ -19,7 +19,7 @@ describe.concurrent('routes/root.js', () => {
         });
 
         expect(response.statusCode).toBe(200);
-        expect(response.json()).toEqual({ root: true });
+        expect(response.json()).toEqual({ root: true, env: 'test' });
     });
 
     it('should return root', async () => {

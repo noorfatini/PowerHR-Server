@@ -2,7 +2,8 @@ export default async function (fastify) {
     // Note: This is a simple example of a route handler.
 
     fastify.get('/', async function () {
-        return { root: true };
+        const ENV = process.env.NODE_ENV;
+        return { root: true, env: ENV };
     });
 
     // Scheme for basic route
