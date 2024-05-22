@@ -68,21 +68,18 @@ jobs:
               run: npm run test
 
     Deploy-Production:
-        permissions:
-            deployments: write
         runs-on: ubuntu-latest
         needs: [Test]
         steps:
             - uses: actions/checkout@v4
 
-            - uses: chrnorm/deployment-action@v2
+            - uses: chrnorm/deployment-action@v2.0.7
               name: Create GitHub deployment
               id: deployment
               with:
                   token: '${{ secrets.GITHUB_TOKEN }}'
                   environment: production
 
-            - uses: actions/checkout@v4
             - name: Install Vercel CLI
               run: npm install --global vercel@latest
             - name: Pull Vercel Environment Information
@@ -94,7 +91,7 @@ jobs:
 
             - name: Update deployment status (success)
               if: success()
-              uses: chrnorm/deployment-status@v2
+              uses: chrnorm/deployment-status@v2.0.3
               with:
                   token: '${{ secrets.GITHUB_TOKEN }}'
                   state: 'success'
@@ -102,7 +99,7 @@ jobs:
 
             - name: Update deployment status (failure)
               if: failure()
-              uses: chrnorm/deployment-status@v2
+              uses: chrnorm/deployment-status@v2.0.3
               with:
                   token: '${{ secrets.GITHUB_TOKEN }}'
                   state: 'failure'
