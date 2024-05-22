@@ -79,7 +79,7 @@ jobs:
               name: Create GitHub deployment
               id: deployment
               with:
-                  token: '${{ github.token }}'
+                  token: '${{ secrets.GITHUB_TOKEN }}'
                   environment: preview
 
             - name: Install Vercel CLI
