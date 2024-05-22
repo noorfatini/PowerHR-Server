@@ -15,7 +15,7 @@ jobs:
                   gh extension install actions/gh-actions-cache
                   ## Setting this to not fail the workflow while deleting cache keys.
                   set +e
-                  gh cache delete --owner ${{ github.repository_owner }} --repo ${{ github.event.repository.name }} --key deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+                  gh cache delete --all
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -40,16 +40,8 @@ jobs:
               with:
                   node-version: '20'
 
-            - name: 'Cache Dependencies'
-              uses: 'actions/cache@v4'
-              id: cache-node-modules
-              with:
-                  path: 'node_modules'
-                  key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
-
-            - name: Install Dependencies
-              run: npm install
-              shell: bash
+            - name: Load & Cache Dependencies
+              uses: ./.github/actions/cached-deps
 
             - name: Update deployment status (failure)
               if: failure()
