@@ -3,6 +3,7 @@ name: Vercel Preview Deployment
 env:
     VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
     VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 on:
     push:
@@ -18,8 +19,6 @@ jobs:
 
             - name: Install gh-actions-cache Extension
               run: gh extension install actions/gh-actions-cache
-              env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Clear Cache
               run: gh cache list
