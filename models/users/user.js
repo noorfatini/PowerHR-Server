@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
-import Resume from '../resume/resume.js';
 
 const userSchema = new mongoose.Schema({
     firstName: {
