@@ -7,7 +7,20 @@ on:
         branches:
             - main
 jobs:
+    Cleanup:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Cleanup Cache
+              run: |
+                  gh extension install actions/gh-actions-cache
+                  ## Setting this to not fail the workflow while deleting cache keys.
+                  set +e
+                  gh cache delete --owner ${{ github.repository_owner }} --repo ${{ github.event.repository.name }} --key deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     Build:
+        needs: Cleanup
         runs-on: ubuntu-latest
         outputs:
             deployment_id: ${{ steps.deployment.outputs.deployment_id }}
