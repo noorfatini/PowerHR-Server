@@ -3,7 +3,6 @@ name: Vercel Preview Deployment
 env:
     VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
     VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 on:
     push:
@@ -11,20 +10,7 @@ on:
             - main
 
 jobs:
-    Cleanup:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Install GitHub CLI
-              run: sudo apt-get install gh -y
-
-            - name: Install gh-actions-cache Extension
-              run: gh extension install actions/gh-actions-cache
-
-            - name: Clear Cache
-              run: gh cache list
-
     Build:
-        needs: Cleanup
         runs-on: ubuntu-latest
         outputs:
             deployment_id: ${{ steps.deployment.outputs.deployment_id }}
@@ -46,6 +32,9 @@ jobs:
 
             - name: Load & Cache Dependencies
               uses: ./.github/actions/cached-deps
+
+            - name: Install Dependencies
+              run: npm install
 
             - name: Update deployment status (failure)
               if: failure()
