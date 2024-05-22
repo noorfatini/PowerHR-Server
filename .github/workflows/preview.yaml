@@ -22,7 +22,7 @@ jobs:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Clear Cache
-              run: gh actions-cache delete deps-node-modules --confirm
+              run: gh cache list
 
     Build:
         needs: Cleanup
