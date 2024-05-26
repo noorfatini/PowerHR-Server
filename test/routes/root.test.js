@@ -12,7 +12,7 @@ describe.concurrent('routes/root.js', () => {
         expect(response.json()).toEqual({ id: '123' });
     });
 
-    it('should return root', async () => {
+    it('should return root, env', async () => {
         const response = await app.inject({
             method: 'GET',
             url: '/',

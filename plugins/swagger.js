@@ -7,7 +7,7 @@ export default fp(async (fastify) => {
     fastify.register(fastifySwaggerUi, {
         routePrefix: '/docs',
         uiConfig: {
-            docExpansion: 'full',
+            docExpansion: 'none',
             deepLinking: false,
         },
         uiHooks: {

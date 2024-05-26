@@ -66,7 +66,7 @@ class UserFactory {
             case 'sysadmin':
                 return SysAdmin.findOne(args);
             case 'user':
-                return User.findOne(args);
+                return User.findOne(args).exec();
             default:
                 throw new ApiError(400, 'Invalid role');
         }
@@ -101,6 +101,12 @@ class UserFactory {
 
     async save(user) {
         await user.save();
+    }
+
+    async comparePassword(user, password) {
+        const compare = await user.comparePassword(password);
+
+        return compare;
     }
 }
 
