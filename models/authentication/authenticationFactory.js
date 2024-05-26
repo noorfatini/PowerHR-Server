@@ -29,6 +29,20 @@ class AuthenticationFactory {
 
         return user;
     }
+
+    async resetPasswordEmail(email) {
+        const userFactory = new UserFactory();
+        const token = await userFactory.resetPasswordEmail(email);
+
+        return token;
+    }
+
+    async resetPassword(token, password, confirmPassword) {
+        const userFactory = new UserFactory();
+        const user = await userFactory.resetPassword(token, password, confirmPassword);
+
+        return user;
+    }
 }
 
 export default AuthenticationFactory;
