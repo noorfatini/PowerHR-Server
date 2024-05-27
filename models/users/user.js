@@ -24,6 +24,16 @@ const userSchema = new mongoose.Schema({
         enum: ['Male', 'Female', 'Prefer not to say'],
         required: true,
     },
+
+    token: {
+        reset: {
+            token: String,
+            counter: {
+                type: Number,
+                default: 0,
+            },
+        },
+    },
 });
 
 userSchema.methods.comparePassword = async function (password) {

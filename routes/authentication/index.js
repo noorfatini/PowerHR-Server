@@ -84,4 +84,131 @@ export default async function (fastify) {
             }
         },
     );
+
+    fastify.post(
+        '/forgot-password',
+        {
+            schema: {
+                description: 'Forgot Password',
+                tags: ['Authentication'],
+                summary: 'Forgot Password and send email',
+                body: {
+                    type: 'object',
+                    required: ['email'],
+                    properties: {
+                        email: { type: 'string' },
+                    },
+                },
+                response: {
+                    200: {
+                        description: 'Successful response',
+                        type: 'object',
+                        properties: {
+                            message: { type: 'string' },
+                        },
+                    },
+                    400: {
+                        description: 'Bad Request',
+                        type: 'object',
+                        properties: {
+                            error: { type: 'string' },
+                        },
+                    },
+                    500: {
+                        description: 'Internal Server Error',
+                        type: 'object',
+                        properties: {
+                            error: { type: 'string' },
+                        },
+                    },
+                },
+            },
+        },
+        async function (request, reply) {
+            try {
+                const { email } = request.body;
+
+                const authenticationFactory = new AuthenticationFactory();
+
+                await authenticationFactory.resetPasswordEmail(email);
+
+                return reply.code(200).send({ message: 'Email sent' });
+            } catch (error) {
+                if (error instanceof ApiError) {
+                    return reply.status(error.statusCode).send({ error: error.message });
+                } else {
+                    request.log.error(error);
+                    reply.status(500).send({ error: error.message || 'Something went wrong' });
+                }
+            }
+        },
+    );
+
+    fastify.post(
+        '/reset-password',
+        {
+            schema: {
+                description: 'Reset Password',
+                tags: ['Authentication'],
+                summary: 'Reset Password',
+                query: {
+                    type: 'object',
+                    required: ['token'],
+                    properties: {
+                        token: { type: 'string' },
+                    },
+                },
+                body: {
+                    type: 'object',
+                    required: ['password', 'confirmPassword'],
+                    properties: {
+                        password: { type: 'string' },
+                        confirmPassword: { type: 'string' },
+                    },
+                },
+                response: {
+                    200: {
+                        description: 'Successful response',
+                        type: 'object',
+                        properties: {
+                            message: { type: 'string' },
+                        },
+                    },
+                    400: {
+                        description: 'Bad Request',
+                        type: 'object',
+                        properties: {
+                            error: { type: 'string' },
+                        },
+                    },
+                    500: {
+                        description: 'Internal Server Error',
+                        type: 'object',
+                        properties: {
+                            error: { type: 'string' },
+                        },
+                    },
+                },
+            },
+        },
+        async function (request, reply) {
+            try {
+                const { token } = request.query;
+                const { password, confirmPassword } = request.body;
+
+                const authenticationFactory = new AuthenticationFactory();
+
+                await authenticationFactory.resetPassword(token, password, confirmPassword);
+
+                return reply.code(200).send({ message: 'Password reset' });
+            } catch (error) {
+                if (error instanceof ApiError) {
+                    return reply.status(error.statusCode).send({ error: error.message });
+                } else {
+                    request.log.error(error);
+                    reply.status(500).send({ error: error.message || 'Something went wrong' });
+                }
+            }
+        },
+    );
 }
