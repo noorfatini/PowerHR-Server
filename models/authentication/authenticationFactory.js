@@ -4,6 +4,10 @@ import ApiError from '../../util/ApiError.js';
 import bcrypt from 'bcrypt';
 
 class AuthenticationFactory {
+    constructor() {
+        this.userFactory = new UserFactory();
+    }
+
     createAuthentication(role) {
         switch (role) {
             case 'applicant':
@@ -14,8 +18,7 @@ class AuthenticationFactory {
     }
 
     async login(email, password) {
-        const userFactory = new UserFactory();
-        const user = await userFactory.findOne('user', { email });
+        const user = await this.userFactory.findOne('user', { email });
 
         if (!user) {
             throw new ApiError(401, 'Invalid email or password');
@@ -24,24 +27,28 @@ class AuthenticationFactory {
         const correctPassword = await bcrypt.compare(password, user.password);
 
         if (!correctPassword) {
-            return new ApiError(401, 'Invalid email or password');
+            throw new ApiError(401, 'Invalid email or password');
         }
 
         return user;
     }
 
     async resetPasswordEmail(email) {
-        const userFactory = new UserFactory();
-        const token = await userFactory.resetPasswordEmail(email);
+        const token = await this.userFactory.resetPasswordEmail(email);
 
         return token;
     }
 
     async resetPassword(token, password, confirmPassword) {
-        const userFactory = new UserFactory();
-        const user = await userFactory.resetPassword(token, password, confirmPassword);
+        const user = await this.userFactory.resetPassword(token, password, confirmPassword);
 
         return user;
+    }
+
+    async verifyResetToken(token) {
+        const verify = await this.userFactory.verifyResetToken(token);
+
+        return verify;
     }
 }
 
