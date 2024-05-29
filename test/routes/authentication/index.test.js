@@ -19,18 +19,20 @@ describe.concurrent('routes/authentication/index.js', () => {
 
     it('Login with invalid email', async () => {
         const response = await app.inject({
-            method: 'GET',
-            url: '/authentication/login?email=invalid&password=password',
+            method: 'POST',
+            url: '/authentication/login',
+            payload: { email: 'invalid', password: 'password' },
         });
-
+        console.log(response);
         expect(response.statusCode).toBe(401);
         expect(response.json()).toEqual({ error: 'Invalid email or password' });
     });
 
     it('Login with invalid password', async () => {
         const response = await app.inject({
-            method: 'GET',
-            url: '/authentication/login?email=invalid&password=password',
+            method: 'POST',
+            url: '/authentication/login',
+            payload: { email: 'powerhr@test.com', password: 'invalid' },
         });
 
         expect(response.statusCode).toBe(401);
