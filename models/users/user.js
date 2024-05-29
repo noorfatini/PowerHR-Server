@@ -58,9 +58,6 @@ userSchema.methods.getPublicProfile = function () {
 };
 
 userSchema.pre('save', async function (next) {
-    if (!this.isModified('password') || !this.isNew) {
-        return next();
-    }
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(this.password, salt);
     this.password = hash;
@@ -75,9 +72,6 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.pre('create', async function (next) {
-    if (!this.isModified('password') || !this.isNew) {
-        return next();
-    }
     const salt = await bcrypt.genSalt(10);
     const hash = bcrypt.hash(this.password, salt);
     this.password = hash;

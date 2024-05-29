@@ -154,7 +154,7 @@ class UserFactory {
                 Jwt.verifyToken(user.token.reset.token);
 
                 if (user.token.reset.counter >= 3) {
-                    throw new ApiError(400, 'Too many requests');
+                    throw new ApiError(400, 'Too many requests. Please try again after 1 hour');
                 }
 
                 if (user.token.reset.counter === undefined) {
@@ -166,9 +166,9 @@ class UserFactory {
                 if (error.name === 'TokenExpiredError') {
                     user.token.reset.token = undefined;
                     user.token.reset.counter = 0;
+                } else {
+                    throw error;
                 }
-
-                throw error;
             }
         }
 
@@ -223,6 +223,22 @@ class UserFactory {
         user.token.reset.counter = 0;
 
         await user.save();
+    }
+
+    async verifyResetToken(token) {
+        const user = await User.findOne({ 'token.reset.token': token });
+
+        if (!user) {
+            throw new ApiError(400, 'Invalid token');
+        }
+
+        try {
+            Jwt.verifyToken(token);
+        } catch (error) {
+            throw new ApiError(400, 'Token expired');
+        }
+
+        return true;
     }
 }
 
