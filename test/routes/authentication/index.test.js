@@ -23,7 +23,6 @@ describe.concurrent('routes/authentication/index.js', () => {
             url: '/authentication/login',
             payload: { email: 'invalid', password: 'password' },
         });
-        console.log(response);
         expect(response.statusCode).toBe(401);
         expect(response.json()).toEqual({ error: 'Invalid email or password' });
     });
