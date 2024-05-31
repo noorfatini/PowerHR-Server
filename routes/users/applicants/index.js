@@ -46,8 +46,7 @@ export default async function (fastify) {
             try {
                 const data = request.body;
                 const authFactory = new AuthenticationFactory();
-                const authApplicant = authFactory.createAuthentication('applicant');
-                const applicant = await authApplicant.register(data);
+                const applicant = authFactory.register('applicant', data);
 
                 reply.status(201).send({
                     message: 'Applicant registered successfully',

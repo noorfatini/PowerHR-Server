@@ -1,8 +1,32 @@
-class Authentication {
-    // eslint-disable-next-line no-unused-vars
-    async register(userData) {
-        throw new Error('Register method must be implemented by subclass');
-    }
-}
+import mongoose from 'mongoose';
+
+const authenticationSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
+
+    active: {
+        type: Boolean,
+        default: false,
+    },
+
+    token: {
+        reset: {
+            token: String,
+            counter: {
+                type: Number,
+                default: 0,
+            },
+        },
+
+        activate: {
+            token: String,
+        },
+    },
+});
+
+const Authentication = mongoose.model('Authentication', authenticationSchema);
 
 export default Authentication;

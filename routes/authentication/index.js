@@ -252,9 +252,68 @@ export default async function (fastify) {
 
                 const authenticationFactory = new AuthenticationFactory();
 
-                await authenticationFactory.verifyResetToken(token);
+                await authenticationFactory.verifyToken(token);
 
                 return reply.code(200).send({ message: 'Token verified' });
+            } catch (error) {
+                if (error instanceof ApiError) {
+                    return reply.status(error.statusCode).send({ error: error.message });
+                } else {
+                    request.log.error(error);
+                    reply.status(500).send({ error: error.message || 'Something went wrong' });
+                }
+            }
+        },
+    );
+
+    fastify.get(
+        '/activate-account',
+        {
+            schema: {
+                description: 'Activate Account',
+                tags: ['Authentication'],
+                summary: 'Activate Account',
+                query: {
+                    type: 'object',
+                    required: ['token'],
+                    properties: {
+                        token: { type: 'string' },
+                    },
+                },
+                response: {
+                    200: {
+                        description: 'Successful response',
+                        type: 'object',
+                        properties: {
+                            message: { type: 'string' },
+                        },
+                    },
+                    400: {
+                        description: 'Bad Request',
+                        type: 'object',
+                        properties: {
+                            error: { type: 'string' },
+                        },
+                    },
+                    500: {
+                        description: 'Internal Server Error',
+                        type: 'object',
+                        properties: {
+                            error: { type: 'string' },
+                        },
+                    },
+                },
+            },
+        },
+        async function (request, reply) {
+            try {
+                const { token } = request.query;
+
+                const authenticationFactory = new AuthenticationFactory();
+
+                await authenticationFactory.activate(token);
+
+                return reply.code(200).send({ message: 'Account activated' });
             } catch (error) {
                 if (error instanceof ApiError) {
                     return reply.status(error.statusCode).send({ error: error.message });
