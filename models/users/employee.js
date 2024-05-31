@@ -23,18 +23,6 @@ const employeeSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Employee',
         },
-
-        access: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Access',
-            },
-        ],
-
-        activated: {
-            type: Boolean,
-            default: false,
-        },
     },
     {
         discriminatorKey: '__t',
