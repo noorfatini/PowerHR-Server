@@ -1,15 +1,25 @@
-import Applicant from './applicant.js';
-import Employee from './employee.js';
-import User from './user.js';
-import SysAdmin from './sysadmin.js';
+import Applicant from '../../models/users/applicant.js';
+import Employee from '../../models/users/employee.js';
+import User from '../../models/users/user.js';
+import SysAdmin from '../../models/users/sysadmin.js';
 import ApiError from '../../util/ApiError.js';
 import ResumeFacade from '../resume/resumeFacade.js';
 
 class UserFactory {
+    /**
+     * Creates a user factory
+     * @constructor
+     */
     constructor() {
         this.resumeFacade = new ResumeFacade();
     }
 
+    /**
+     * Creates a user based on the role
+     * @param {string} role - The role of the user
+     * @param {JSON} args - The user's information
+     * @returns {object} - The created user
+     */
     async createUser(role, args) {
         const { firstName, lastName, email, gender, password, confirmPassword, companyId, jobTitle } = args;
 
@@ -62,6 +72,12 @@ class UserFactory {
         }
     }
 
+    /**
+     * Registers a user
+     * @param {string} role - The role of the user
+     * @param {JSON} args - The user's information
+     * @returns {object} - The created user
+     */
     async register(role, args) {
         const user = await this.createUser(role, args);
 
@@ -75,6 +91,12 @@ class UserFactory {
         return user;
     }
 
+    /**
+     * Updates a user
+     * @param {string} role - The role of the user
+     * @param {JSON} args - The user's information
+     * @returns {object} - The updated user
+     */
     async findOne(role, args) {
         switch (role) {
             case 'applicant':
@@ -90,6 +112,12 @@ class UserFactory {
         }
     }
 
+    /**
+     * Finds a user
+     * @param {string} role - The role of the user
+     * @param {JSON} args - The user's information
+     * @returns {object} - The found user
+     */
     async find(role, args) {
         switch (role) {
             case 'applicant':
@@ -105,28 +133,56 @@ class UserFactory {
         }
     }
 
+    /**
+     * Finds a user by id
+     * @param {string} id - The id of the user
+     * @returns {object} - The found user
+     */
     async findById(id) {
         const user = await User.findById(id);
 
         return user;
     }
 
+    /**
+     * Finds a user by id and updates it
+     * @param {string} id - The id of the user
+     * @param {JSON} update - The update information
+     * @returns {object} - The updated user
+     */
     async findByIdAndUpdate(id, update) {
         const user = await User.findByIdAndUpdate(id, update);
 
         return user;
     }
 
+    /**
+     * Saves a user
+     * @param {object} user - The user to save
+     */
     async save(user) {
         await user.save();
     }
 
+    /**
+     * Compares a user's password
+     * @param {object} user - The user to compare
+     * @param {string} password - The password to compare
+     * @returns {boolean} - The result of the comparison
+     */
     async comparePassword(user, password) {
         const compare = await user.comparePassword(password);
 
         return compare;
     }
 
+    /**
+     * Changes a user's password
+     * @param {string} id - The id of the user
+     * @param {string} newPassword - The new password
+     * @param {string} confirmPassword - The confirmed password
+     * @param {string} oldPassword - The old password
+     */
     async changePassword(id, newPassword, confirmPassword, oldPassword = null) {
         if (newPassword !== confirmPassword) {
             throw new ApiError(400, 'Passwords do not match');

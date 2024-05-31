@@ -1,13 +1,13 @@
 import UserFactory from '../users/userFactory.js';
 import ApiError from '../../util/ApiError.js';
 import bcrypt from 'bcrypt';
-import Authentication from './authentication.js';
+import Authentication from '../../models/auth/authentication.js';
 import Jwt from '../../util/Jwt.js';
 import Email from '../../util/Email.js';
 
 const frontEndUrl = process.env.FRONTEND_URL;
 
-class AuthenticationFactory {
+class AuthFacade {
     constructor() {
         this.userFactory = new UserFactory();
     }
@@ -173,4 +173,4 @@ class AuthenticationFactory {
     }
 }
 
-export default AuthenticationFactory;
+export default AuthFacade;
