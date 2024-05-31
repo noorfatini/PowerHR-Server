@@ -1,104 +1,142 @@
-export default async function (fastify) {
-    // Note: This is a simple example of a route handler.
+class ExampleRoute {
+    constructor(fastify) {
+        this.fastify = fastify;
+        this.initRoutes();
+    }
 
-    fastify.get('/', async function () {
-        const ENV = process.env.NODE_ENV;
-        return { root: true, env: ENV };
-    });
-
-    // Scheme for basic route
-    fastify.get(
-        '/basic',
-        {
-            schema: {
-                description: 'Example of root route',
-                tags: ['root'],
-                summary: 'Root',
-                response: {
-                    200: {
-                        description: 'Successful response',
-                        type: 'object',
-                        properties: {
-                            root: {
-                                type: 'boolean',
+    initRoutes() {
+        this.fastify.get(
+            '/',
+            {
+                schema: {
+                    description: 'Example of root route',
+                    tags: ['Root'],
+                    summary: 'Root',
+                    response: {
+                        200: {
+                            description: 'Successful response',
+                            type: 'object',
+                            properties: {
+                                root: {
+                                    type: 'boolean',
+                                },
+                                env: {
+                                    type: 'string',
+                                },
                             },
                         },
                     },
                 },
             },
-        },
-        async function () {
-            return { root: true };
-        },
-    );
+            this.getRoot.bind(this),
+        );
 
-    // Scheme for route with parameter
-    fastify.get(
-        '/param/:id',
-        {
-            schema: {
-                description: 'Example of parameter route',
-                tags: ['root'],
-                summary: 'Test',
-                params: {
-                    type: 'object',
-                    properties: {
-                        id: {
-                            type: 'string',
-                            description: 'The id of the test',
+        this.fastify.get(
+            '/basic',
+            {
+                schema: {
+                    description: 'Example of root route',
+                    tags: ['Root'],
+                    summary: 'Root',
+                    response: {
+                        200: {
+                            description: 'Successful response',
+                            type: 'object',
+                            properties: {
+                                root: {
+                                    type: 'boolean',
+                                },
+                            },
                         },
                     },
                 },
-                response: {
-                    200: {
-                        description: 'Successful response',
+            },
+            this.getBasic.bind(this),
+        );
+
+        this.fastify.get(
+            '/param/:id',
+            {
+                schema: {
+                    description: 'Example of parameter route',
+                    tags: ['Root'],
+                    summary: 'Test',
+                    params: {
                         type: 'object',
                         properties: {
                             id: {
                                 type: 'string',
+                                description: 'The id of the test',
+                            },
+                        },
+                    },
+                    response: {
+                        200: {
+                            description: 'Successful response',
+                            type: 'object',
+                            properties: {
+                                id: {
+                                    type: 'string',
+                                },
                             },
                         },
                     },
                 },
             },
-        },
-        async function (request) {
-            return { id: request.params.id };
-        },
-    );
+            this.getParam.bind(this),
+        );
 
-    // Scheme for route with body
-    fastify.post(
-        '/body',
-        {
-            schema: {
-                description: 'Example of body route',
-                tags: ['root'],
-                summary: 'Body',
-                body: {
-                    type: 'object',
-                    properties: {
-                        message: {
-                            type: 'string',
-                            description: 'The message to return',
-                        },
-                    },
-                },
-                response: {
-                    200: {
-                        description: 'Successful response',
+        this.fastify.post(
+            '/body',
+            {
+                schema: {
+                    description: 'Example of body route',
+                    tags: ['Root'],
+                    summary: 'Body',
+                    body: {
                         type: 'object',
                         properties: {
                             message: {
                                 type: 'string',
+                                description: 'The message to return',
+                            },
+                        },
+                    },
+                    response: {
+                        200: {
+                            description: 'Successful response',
+                            type: 'object',
+                            properties: {
+                                message: {
+                                    type: 'string',
+                                },
                             },
                         },
                     },
                 },
             },
-        },
-        async function (request) {
-            return { message: request.body.message };
-        },
-    );
+            this.getBody.bind(this),
+        );
+    }
+
+    async getRoot(request, reply) {
+        const ENV = process.env.NODE_ENV;
+        return reply.send({ root: true, env: ENV });
+    }
+
+    async getBasic(request, reply) {
+        return reply.send({ root: true });
+    }
+
+    async getParam(request, reply) {
+        return reply.send({ id: request.params.id });
+    }
+
+    async getBody(request, reply) {
+        return reply.send({ message: request.body.message });
+    }
+}
+
+export default async function (fastify) {
+    new ExampleRoute(fastify);
 }

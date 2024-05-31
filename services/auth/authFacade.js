@@ -1,0 +1,176 @@
+import UserFactory from '../users/userFactory.js';
+import ApiError from '../../util/ApiError.js';
+import bcrypt from 'bcrypt';
+import Authentication from '../../models/auth/authentication.js';
+import Jwt from '../../util/Jwt.js';
+import Email from '../../util/Email.js';
+
+const frontEndUrl = process.env.FRONTEND_URL;
+
+class AuthFacade {
+    constructor() {
+        this.userFactory = new UserFactory();
+    }
+
+    async register(role, userData) {
+        const user = await this.userFactory.register(role, userData);
+
+        const token = Jwt.generateToken({ id: user._id, type: 'active' }, '7d');
+
+        await Authentication.create({
+            user: user._id,
+            token: {
+                activate: {
+                    token,
+                },
+            },
+        });
+
+        // Email account activation
+        const subject = 'Account Activation';
+        const text = `Hello ${user.firstName} ${user.lastName},\n\nPlease verify your account by clicking the following link: ${frontEndUrl}/activate?token=${token}\n`;
+
+        await Email.sendEmail(user.email, subject, text);
+
+        return user;
+    }
+
+    async activate(token) {
+        const authentication = await Authentication.findOne({ 'token.activate.token': token });
+
+        if (!authentication) {
+            throw new ApiError(400, 'Invalid token');
+        }
+
+        try {
+            Jwt.verifyToken(token);
+        } catch (error) {
+            throw new ApiError(400, 'Token expired');
+        }
+
+        authentication.active = true;
+
+        await authentication.save();
+
+        // Email account activation
+        const user = await this.userFactory.findOne('user', { _id: authentication.user });
+        const subject = 'Account Activated';
+        const text = `Hello ${user.firstName} ${user.lastName},\n\nThis is a confirmation that your account has been activated.\n`;
+
+        await Email.sendEmail(user.email, subject, text);
+
+        return true;
+    }
+
+    async login(email, password) {
+        const user = await this.userFactory.findOne('user', { email });
+
+        if (!user) {
+            throw new ApiError(401, 'Invalid email or password');
+        }
+
+        const authentication = await Authentication.findOne({ user: user._id });
+
+        if (!authentication.active) {
+            throw new ApiError(401, 'Account not activated');
+        }
+
+        const correctPassword = await bcrypt.compare(password, user.password);
+
+        if (!correctPassword) {
+            throw new ApiError(401, 'Invalid email or password');
+        }
+
+        return user;
+    }
+
+    async resetPasswordEmail(email) {
+        const user = await this.userFactory.findOne('user', { email });
+
+        if (!user) {
+            throw new ApiError(404, 'User not found');
+        }
+
+        // Find user id in authentication collection
+        const authentication = await Authentication.findOne({ user: user._id });
+
+        if (authentication.token.reset.token) {
+            try {
+                Jwt.verifyToken(authentication.token.reset.token);
+
+                if (authentication.token.reset.counter > 3) {
+                    throw new ApiError(400, 'Too many requests. Please try again after 1 hour');
+                }
+
+                if (authentication.token.reset.counter === undefined) {
+                    authentication.token.reset.counter = 0;
+                }
+
+                authentication.token.reset.counter += 1;
+            } catch (error) {
+                if (error.name === 'TokenExpiredError') {
+                    authentication.token.reset.token = undefined;
+                    authentication.token.reset.counter = 0;
+                } else {
+                    throw error;
+                }
+            }
+        }
+
+        const token = Jwt.generateToken({ email, type: 'reset' }, '1h');
+
+        authentication.token.reset.token = token;
+
+        await authentication.save();
+
+        // Email password reset link
+        const subject = 'Password Reset';
+        const text = `You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n\n
+        Please click on the following link, or paste this into your browser to complete the process:\n\n
+        ${frontEndUrl}/reset-password?token=${token}\n\n
+        If you did not request this, please ignore this email and your password will remain unchanged.\n`;
+
+        await Email.sendEmail(email, subject, text);
+
+        return token;
+    }
+
+    async resetPassword(token, password, confirmPassword) {
+        const authentication = await Authentication.findOne({ 'token.reset.token': token });
+
+        if (!authentication) {
+            throw new ApiError(400, 'Invalid token');
+        }
+
+        try {
+            Jwt.verifyToken(token);
+        } catch (error) {
+            throw new ApiError(400, 'Token expired');
+        }
+
+        await this.userFactory.changePassword(authentication.user, password, confirmPassword);
+
+        return true;
+    }
+
+    async verifyToken(token) {
+        // Find token in authentication collection (token reset or token activate
+        const authentication = await Authentication.findOne({
+            $or: [{ 'token.reset.token': token }, { 'token.activate.token': token }],
+        });
+
+        if (!authentication) {
+            throw new ApiError(400, 'Invalid token');
+        }
+
+        try {
+            Jwt.verifyToken(token);
+        } catch (error) {
+            throw new ApiError(400, 'Token expired');
+        }
+
+        return true;
+    }
+}
+
+export default AuthFacade;
