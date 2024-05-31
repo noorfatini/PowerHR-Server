@@ -20,7 +20,7 @@ describe.concurrent('routes/authentication/index.js', () => {
     it('Login with invalid email', async () => {
         const response = await app.inject({
             method: 'POST',
-            url: '/authentication/login',
+            url: '/auth/login',
             payload: { email: 'invalid', password: 'password' },
         });
         expect(response.statusCode).toBe(401);
@@ -30,7 +30,7 @@ describe.concurrent('routes/authentication/index.js', () => {
     it('Login with invalid password', async () => {
         const response = await app.inject({
             method: 'POST',
-            url: '/authentication/login',
+            url: '/auth/login',
             payload: { email: 'powerhr@test.com', password: 'invalid' },
         });
 

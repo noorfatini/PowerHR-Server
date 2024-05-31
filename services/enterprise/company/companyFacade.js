@@ -1,7 +1,7 @@
-import Company from './company.js';
-import Department from './department.js';
-import ApiError from '../../util/ApiError.js';
-import UserFactory from '../users/userFactory.js';
+import Company from '../../../models/enterprise/company/company.js';
+import Department from '../../../models/enterprise/company/department.js';
+import ApiError from '../../../util/ApiError.js';
+import UserFactory from '../../users/userFactory.js';
 
 class CompanyFacade {
     async createCompany(name, email, phone, address, payment) {
