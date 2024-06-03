@@ -21,7 +21,8 @@ class UserFactory {
      * @returns {object} - The created user
      */
     async createUser(role, args) {
-        const { firstName, lastName, email, gender, password, confirmPassword, companyId, jobTitle } = args;
+        const { firstName, lastName, email, gender, password, confirmPassword, companyId, jobTitle, departmentId } =
+            args;
 
         const userExists = await User.exists({ email });
 
@@ -56,6 +57,7 @@ class UserFactory {
                     password: '123456',
                     company: companyId,
                     jobTitle: jobTitle || 'Unassigned',
+                    department: departmentId,
                 });
             case 'sysadmin':
                 return new SysAdmin({

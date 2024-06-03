@@ -5,8 +5,8 @@ class EnterpriseFactory {
         this.companyFacade = new CompanyFacade();
     }
 
-    async createCompany(name, email, phone, address, payment) {
-        return this.companyFacade.createCompany(name, email, phone, address, payment);
+    async createCompany(name, email, phone, address) {
+        return this.companyFacade.createCompany(name, email, phone, address);
     }
 
     async isCompanyExist(email) {

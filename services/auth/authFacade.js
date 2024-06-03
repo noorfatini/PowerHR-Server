@@ -22,6 +22,7 @@ class AuthFacade {
             token: {
                 activate: {
                     token,
+                    changePassword: role !== 'applicant',
                 },
             },
         });
@@ -35,7 +36,7 @@ class AuthFacade {
         return user;
     }
 
-    async activate(token) {
+    async activate(token, password = null, confirmPassword = null) {
         const authentication = await Authentication.findOne({ 'token.activate.token': token });
 
         if (!authentication) {
@@ -49,6 +50,12 @@ class AuthFacade {
         }
 
         authentication.active = true;
+        authentication.token.activate.token = undefined;
+
+        if (password && confirmPassword) {
+            await this.userFactory.changePassword(authentication.user, password, confirmPassword);
+            authentication.token.activate.changePassword = false;
+        }
 
         await authentication.save();
 
@@ -150,6 +157,11 @@ class AuthFacade {
 
         await this.userFactory.changePassword(authentication.user, password, confirmPassword);
 
+        authentication.token.reset.token = undefined;
+        authentication.token.reset.counter = 0;
+
+        await authentication.save();
+
         return true;
     }
 
@@ -169,7 +181,7 @@ class AuthFacade {
             throw new ApiError(400, 'Token expired');
         }
 
-        return true;
+        return authentication;
     }
 }
 

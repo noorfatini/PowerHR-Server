@@ -23,6 +23,10 @@ const authenticationSchema = new mongoose.Schema({
 
         activate: {
             token: String,
+            changePassword: {
+                type: Boolean,
+                default: false,
+            },
         },
     },
 });

@@ -43,27 +43,6 @@ const companySchema = Schema({
         },
     },
 
-    payment: {
-        cardNumber: String,
-        expiryDate: String,
-        cvc: String,
-        nameOnCard: String,
-        zip: String,
-
-        history: [
-            {
-                date: {
-                    type: Date,
-                    required: true,
-                },
-                ref: {
-                    type: String,
-                    required: true,
-                },
-            },
-        ],
-    },
-
     branch: {
         isBranch: { type: Boolean, default: false },
         parentCompany: {

@@ -168,6 +168,7 @@ class AuthRoutes {
                             type: 'object',
                             properties: {
                                 message: { type: 'string' },
+                                changePassword: { type: 'boolean' },
                             },
                         },
                         400: {
@@ -190,7 +191,7 @@ class AuthRoutes {
             this.verifyToken.bind(this),
         );
 
-        this.fastify.get(
+        this.fastify.post(
             '/activate-account',
             {
                 schema: {
@@ -202,6 +203,13 @@ class AuthRoutes {
                         required: ['token'],
                         properties: {
                             token: { type: 'string' },
+                        },
+                    },
+                    body: {
+                        type: 'object',
+                        properties: {
+                            password: { type: 'string' },
+                            confirmPassword: { type: 'string' },
                         },
                     },
                     response: {
@@ -431,9 +439,11 @@ class AuthRoutes {
         try {
             const { token } = request.query;
 
-            await this.authFacade.verifyToken(token);
+            const authentication = await this.authFacade.verifyToken(token);
 
-            return reply.code(200).send({ message: 'Token verified' });
+            return reply
+                .code(200)
+                .send({ message: 'Token verified', changePassword: authentication.token.activate.changePassword });
         } catch (error) {
             if (error instanceof ApiError) {
                 return reply.status(error.statusCode).send({ error: error.message });
@@ -447,8 +457,9 @@ class AuthRoutes {
     async activateAccount(request, reply) {
         try {
             const { token } = request.query;
+            const { password, confirmPassword } = request.body;
 
-            await this.authFacade.activate(token);
+            await this.authFacade.activate(token, password, confirmPassword);
 
             return reply.code(200).send({ message: 'Account activated' });
         } catch (error) {

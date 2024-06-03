@@ -2,9 +2,15 @@ import Company from '../../../models/enterprise/company/company.js';
 import Department from '../../../models/enterprise/company/department.js';
 import ApiError from '../../../util/ApiError.js';
 import UserFactory from '../../users/userFactory.js';
+import AuthFacade from '../../auth/authFacade.js';
 
 class CompanyFacade {
-    async createCompany(name, email, phone, address, payment) {
+    constructor() {
+        this.userFactory = new UserFactory();
+        this.authFacade = new AuthFacade();
+    }
+
+    async createCompany(name, email, phone, address) {
         let company;
         let department;
 
@@ -20,7 +26,6 @@ class CompanyFacade {
                 email,
                 phone,
                 address,
-                payment,
                 active: {
                     //30 days from now
                     until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
@@ -32,12 +37,10 @@ class CompanyFacade {
                 company: company._id,
             });
 
-            const adminEmail = name.replace(/\s/g, '') + '@admin.com';
-
+            const adminEmail = email;
             const password = Math.random().toString(36).substring(2, 10);
 
-            const userFactory = new UserFactory();
-            const admin = await userFactory.createUser('employee', {
+            await this.authFacade.register('employee', {
                 firstName: 'Admin',
                 lastName: '1',
                 email: adminEmail,
@@ -46,11 +49,8 @@ class CompanyFacade {
                 confirmPassword: password,
                 companyId: company._id,
                 jobTitle: 'Admin',
+                departmentId: department._id,
             });
-
-            admin.department = department._id;
-
-            await userFactory.save(admin);
 
             return company;
         } catch (error) {

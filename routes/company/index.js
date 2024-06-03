@@ -32,30 +32,8 @@ class CompanyRoutes {
                                 },
                                 required: ['street', 'city', 'state', 'zip', 'country'],
                             },
-                            payment: {
-                                type: 'object',
-                                properties: {
-                                    cardNumber: { type: 'string' },
-                                    expiryDate: { type: 'string' },
-                                    cvc: { type: 'string' },
-                                    nameOnCard: { type: 'string' },
-                                    zip: { type: 'string' },
-                                    history: {
-                                        type: 'array',
-                                        items: {
-                                            type: 'object',
-                                            properties: {
-                                                date: { type: 'string' },
-                                                ref: { type: 'string' },
-                                            },
-                                            required: ['date', 'ref'],
-                                        },
-                                    },
-                                },
-                                required: ['cardNumber', 'expiryDate', 'cvc', 'nameOnCard', 'zip'],
-                            },
                         },
-                        required: ['name', 'email', 'phone', 'address', 'payment'],
+                        required: ['name', 'email', 'phone', 'address'],
                     },
                 },
             },
@@ -83,9 +61,9 @@ class CompanyRoutes {
 
     async registerCompany(request, reply) {
         try {
-            const { name, email, phone, address, payment } = request.body;
+            const { name, email, phone, address } = request.body;
 
-            const company = await this.enterpriseFacade.createCompany(name, email, phone, address, payment);
+            const company = await this.enterpriseFacade.createCompany(name, email, phone, address);
 
             reply.status(201).send({
                 company,
