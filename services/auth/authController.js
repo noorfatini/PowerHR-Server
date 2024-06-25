@@ -7,7 +7,7 @@ import Email from '../../util/Email.js';
 
 const frontEndUrl = process.env.FRONTEND_URL;
 
-class AuthFacade {
+class AuthController {
     constructor() {
         this.userFactory = new UserFactory();
     }
@@ -31,7 +31,11 @@ class AuthFacade {
         const subject = 'Account Activation';
         const text = `Hello ${user.firstName} ${user.lastName},\n\nPlease verify your account by clicking the following link: ${frontEndUrl}/activate?token=${token}\n`;
 
-        await Email.sendEmail(user.email, subject, text);
+        if (role === 'applicant') {
+            await Email.sendEmail(user.email, subject, text);
+        } else {
+            await Email.sendEmail(user.personalEmail, subject, text);
+        }
 
         return user;
     }
@@ -88,7 +92,9 @@ class AuthFacade {
             throw new ApiError(401, 'Invalid email or password');
         }
 
-        return user;
+        const userPublic = await this.userFactory.getMe(user._id);
+
+        return userPublic;
     }
 
     async resetPasswordEmail(email) {
@@ -183,6 +189,12 @@ class AuthFacade {
 
         return authentication;
     }
+
+    async changePassword(id, newPassword, confirmPassword, oldPassword) {
+        await this.userFactory.changePassword(id, newPassword, confirmPassword, oldPassword);
+
+        return true;
+    }
 }
 
-export default AuthFacade;
+export default AuthController;

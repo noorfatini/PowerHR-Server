@@ -2,7 +2,14 @@ import User from './user.js';
 import mongoose from 'mongoose';
 
 const applicantSchema = new mongoose.Schema(
-    {},
+    {
+        appliedJobs: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Application',
+            },
+        ],
+    },
     {
         discriminatorKey: '__t',
     },

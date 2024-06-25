@@ -31,10 +31,13 @@
         "@fastify/swagger-ui": "^3.0.0",
         "axios": "^1.6.8",
         "bcrypt": "^5.1.1",
+        "dayjs": "^1.11.11",
         "fastify": "^4.0.0",
         "fastify-cli": "^6.0.0",
         "fastify-plugin": "^4.0.0",
+        "firebase": "^10.12.2",
         "jsonwebtoken": "^9.0.2",
+        "lodash": "^4.17.21",
         "mongoose": "^8.2.3",
         "nodemailer": "^6.9.13"
     },

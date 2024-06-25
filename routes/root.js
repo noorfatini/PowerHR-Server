@@ -121,6 +121,7 @@ class ExampleRoute {
 
     async getRoot(request, reply) {
         const ENV = process.env.NODE_ENV;
+
         return reply.send({ root: true, env: ENV });
     }
 

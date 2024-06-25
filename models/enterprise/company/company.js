@@ -6,6 +6,8 @@ const companySchema = Schema({
         required: true,
     },
 
+    description: String,
+
     createdDate: {
         type: Date,
         default: Date.now,
@@ -43,12 +45,9 @@ const companySchema = Schema({
         },
     },
 
-    branch: {
-        isBranch: { type: Boolean, default: false },
-        parentCompany: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Company',
-        },
+    parentCompany: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Company',
     },
 });
 

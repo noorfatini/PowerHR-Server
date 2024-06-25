@@ -12,17 +12,9 @@ const departmentSchema = mongoose.Schema({
         required: true,
     },
 
-    logo: String,
-
-    email: String,
-
-    phone: String,
-
-    address: {
-        street: String,
-        city: String,
-        state: String,
-        zip: String,
+    underDepartment: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Department',
     },
 });
 
