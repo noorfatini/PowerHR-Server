@@ -9,6 +9,16 @@ const employeeSchema = new mongoose.Schema(
             required: true,
         },
 
+        address: {
+            street: String,
+            city: String,
+            state: String,
+            zip: String,
+            country: String,
+        },
+
+        phone: String,
+
         department: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Department',

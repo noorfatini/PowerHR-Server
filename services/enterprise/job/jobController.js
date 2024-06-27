@@ -340,6 +340,29 @@ class JobController {
         return postings;
     }
 
+    async getApplicationsByApplicant(applicantId) {
+        //populate posting and posting.job
+        const applications = await Application.find({ applicant: applicantId })
+            .populate('posting')
+            .populate({
+                path: 'posting',
+                populate: {
+                    path: 'job',
+                },
+            })
+            .populate({
+                path: 'posting',
+                populate: {
+                    path: 'job',
+                    populate: {
+                        path: 'company',
+                    },
+                },
+            });
+
+        return applications;
+    }
+
     async updateApplication(applicationId, data) {
         const updatedApplication = await Application.findByIdAndUpdate(applicationId, { $set: data }, { new: true });
 

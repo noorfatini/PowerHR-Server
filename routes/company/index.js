@@ -58,6 +58,42 @@ class CompanyRoutes {
             this.getCompany.bind(this),
         );
 
+        this.fastify.get(
+            '/:companyId/profile',
+            {
+                schema: {
+                    description: 'Get company profile',
+                    tags: ['Company'],
+                    params: {
+                        type: 'object',
+                        properties: {
+                            companyId: { type: 'string' },
+                        },
+                        required: ['companyId'],
+                    },
+                },
+            },
+            this.getCompanyProfile.bind(this),
+        );
+
+        this.fastify.put(
+            '/:companyId',
+            {
+                schema: {
+                    description: 'Update company',
+                    tags: ['Company'],
+                    params: {
+                        type: 'object',
+                        properties: {
+                            companyId: { type: 'string' },
+                        },
+                        required: ['companyId'],
+                    },
+                },
+            },
+            this.updateCompany.bind(this),
+        );
+
         this.fastify.post(
             '/check',
             {
@@ -169,6 +205,26 @@ class CompanyRoutes {
         const company = await this.enterpriseFacade.getCompanyDetail(companyId);
 
         reply.send(company);
+    }
+
+    async getCompanyProfile(request, reply) {
+        const { companyId } = request.params;
+
+        const company = await this.enterpriseFacade.getCompanyProfile(companyId);
+
+        reply.send(company);
+    }
+
+    async updateCompany(request, reply) {
+        const { companyId } = request.params;
+        const data = request.body;
+
+        const company = await this.enterpriseFacade.updateCompany(companyId, data);
+
+        reply.send({
+            company,
+            message: 'Company updated',
+        });
     }
 
     async checkCompany(request, reply) {

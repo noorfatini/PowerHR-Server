@@ -153,6 +153,10 @@ class EnterpriseFacade {
         return await this.jobController.getListIdApplications(userId);
     }
 
+    async getApplicationsByApplicant(applicantId) {
+        return await this.jobController.getApplicationsByApplicant(applicantId);
+    }
+
     async updateApplication(applicationId, status) {
         return await this.jobController.updateApplication(applicationId, status);
     }

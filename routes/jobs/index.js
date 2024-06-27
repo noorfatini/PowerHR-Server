@@ -105,7 +105,7 @@ class JobRoutes {
         );
 
         this.fastify.get(
-            '/applications/applicant/:userId',
+            '/applications/applicant/:userId/list',
             {
                 schema: {
                     description: 'Get all job applications by user',
@@ -120,6 +120,23 @@ class JobRoutes {
                 },
             },
             this.getListIdApplications.bind(this),
+        );
+
+        this.fastify.get(
+            '/applications/applicant/:applicantId',
+            {
+                schema: {
+                    description: 'Get all job applications by applicant',
+                    tags: ['Job'],
+                    params: {
+                        type: 'object',
+                        properties: {
+                            applicantId: { type: 'string' },
+                        },
+                    },
+                },
+            },
+            this.getApplicationsByApplicant.bind(this),
         );
 
         this.fastify.get(
@@ -250,6 +267,21 @@ class JobRoutes {
         try {
             const { userId } = request.params;
             const applications = await this.enterpriseFacade.getListIdApplications(userId);
+            reply.status(200).send(applications);
+        } catch (error) {
+            if (error instanceof ApiError) {
+                return reply.status(error.statusCode).send({ error: error.message });
+            } else {
+                request.log.error(error);
+                reply.status(500).send({ error: error.message || 'Something went wrong' });
+            }
+        }
+    }
+
+    async getApplicationsByApplicant(request, reply) {
+        try {
+            const { applicantId } = request.params;
+            const applications = await this.enterpriseFacade.getApplicationsByApplicant(applicantId);
             reply.status(200).send(applications);
         } catch (error) {
             if (error instanceof ApiError) {

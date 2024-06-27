@@ -8,6 +8,18 @@ const companySchema = Schema({
 
     description: String,
 
+    page: {
+        header: {
+            title: String,
+            content: String,
+        },
+
+        body: {
+            title: String,
+            content: String,
+        },
+    },
+
     createdDate: {
         type: Date,
         default: Date.now,

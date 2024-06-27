@@ -93,9 +93,9 @@ class CompanyController {
             throw new ApiError(404, 'Company not found');
         }
 
-        await company.updateOne(args);
+        const newCompany = await Company.findByIdAndUpdate(companyId, args);
 
-        return company;
+        return newCompany;
     }
 
     async getCompanyProfile(companyId) {
