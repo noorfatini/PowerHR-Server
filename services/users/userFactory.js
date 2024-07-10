@@ -33,6 +33,7 @@ class UserFactory {
             department,
             personalEmail,
             hireDate,
+            terminationDate,
             salary,
         } = args;
 
@@ -72,6 +73,7 @@ class UserFactory {
                     department: department,
                     personalEmail,
                     hireDate,
+                    terminationDate,
                     salary,
                 });
             case 'sysadmin':

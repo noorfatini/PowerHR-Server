@@ -2,7 +2,7 @@ import auth from '@fastify/auth';
 import fp from 'fastify-plugin';
 
 export default fp(async (fastify) => {
-    fastify.decorate('verifyJWT', async function (request, reply) {
+    fastify.decorate('verifyToken', async function (request, reply) {
         const { token } = request.cookies;
 
         if (!token) {

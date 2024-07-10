@@ -3,6 +3,9 @@ import Department from '../../../models/enterprise/company/department.js';
 import ApiError from '../../../util/ApiError.js';
 import UserFactory from '../../users/userFactory.js';
 import AuthController from '../../auth/authController.js';
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween.js';
+dayjs.extend(isBetween);
 
 class CompanyController {
     constructor() {
@@ -40,21 +43,23 @@ class CompanyController {
                 firstName: 'Admin',
                 lastName: '1',
                 email: adminEmail,
+                personalEmail: adminEmail,
                 gender: 'Prefer not to say',
                 password,
                 confirmPassword: password,
-                companyId: company._id,
+                company: company._id,
                 jobTitle: 'Admin',
-                departmentId: department._id,
+                department: department._id,
+                salary: 0,
             });
 
             return company;
         } catch (error) {
-            if (company._id) {
+            if (company?._id) {
                 await Company.findByIdAndDelete(company._id);
             }
 
-            if (department._id) {
+            if (department?._id) {
                 await Department.findByIdAndDelete(department._id);
             }
             throw error;
@@ -187,6 +192,44 @@ class CompanyController {
         await this.userFactory.update('employee', employeeId, { department: departmentId });
 
         return true;
+    }
+
+    async getTurnOver(companyId, startDate, endDate) {
+        const toDate = endDate ? dayjs(endDate, 'DD/MM/YYYY') : dayjs();
+        const fromDate = startDate ? dayjs(startDate, 'DD/MM/YYYY') : toDate.subtract(1, 'year');
+
+        const employees = await this.userFactory.find('employee', {
+            company: companyId,
+            $or: [{ terminationDate: { $exists: false } }, { terminationDate: { $gte: fromDate.toDate() } }],
+        });
+
+        const employeesLeft = employees.filter((employee) => {
+            const terminationDate = employee.terminationDate ? dayjs(employee.terminationDate) : null;
+            return terminationDate && terminationDate.isBetween(fromDate, toDate, null, '[]');
+        }).length;
+
+        const totalEmployeesBeginning = employees.filter((employee) => {
+            const hireDate = dayjs(employee.hireDate);
+            return hireDate.isBefore(fromDate);
+        }).length;
+
+        const totalEmployeesEnd = employees.filter((employee) => {
+            const hireDate = dayjs(employee.hireDate);
+            return hireDate.isBefore(toDate);
+        }).length;
+
+        const averageEmployees = Math.ceil((totalEmployeesBeginning + totalEmployeesEnd) / 2);
+
+        const turnoverRate = (employeesLeft / averageEmployees) * 100;
+
+        return {
+            rate: turnoverRate.toFixed(2),
+            employees: employees.length,
+            employeesLeft,
+            averageEmployees,
+            totalEmployeesBeginning,
+            totalEmployeesEnd,
+        };
     }
 }
 

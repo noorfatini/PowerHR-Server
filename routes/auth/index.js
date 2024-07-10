@@ -407,14 +407,7 @@ class AuthRoutes {
         try {
             const { email, password } = request.body;
 
-            const user = await this.authController.login(email, password);
-
-            const token = await reply.jwtSign(
-                {
-                    _id: user._id,
-                },
-                { expiresIn: '1h' },
-            );
+            const { user, token } = await this.authController.login(email, password);
 
             return reply.code(200).send({ user, token });
         } catch (error) {

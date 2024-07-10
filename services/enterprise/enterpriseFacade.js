@@ -3,6 +3,7 @@ import FormController from './form/formController.js';
 import AuthController from '../auth/authController.js';
 import UserFactory from '../users/userFactory.js';
 import JobController from './job/jobController.js';
+import LogController from './log/logController.js';
 
 class EnterpriseFacade {
     constructor() {
@@ -10,6 +11,7 @@ class EnterpriseFacade {
         this.formController = new FormController();
         this.authController = new AuthController();
         this.userFactory = new UserFactory();
+        this.logController = new LogController();
         this.jobController = new JobController(this);
     }
 
@@ -181,6 +183,20 @@ class EnterpriseFacade {
 
     async getPostingListByCompanyId(companyId) {
         return await this.jobController.getPostingListByCompanyId(companyId);
+    }
+
+    // Log
+    async logAction(user, company, action, description) {
+        return await this.logController.logAction(user, company, action, description);
+    }
+
+    async getCompanyLogs(company, filters) {
+        return await this.logController.getCompanyLogs(company, filters);
+    }
+
+    //analytic
+    async getTurnOver(companyId, startDate, endDate) {
+        return await this.companyController.getTurnOver(companyId, startDate, endDate);
     }
 }
 

@@ -50,13 +50,6 @@ const companySchema = Schema({
         index: true,
     },
 
-    active: {
-        until: {
-            type: Date,
-            required: true,
-        },
-    },
-
     parentCompany: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Company',

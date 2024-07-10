@@ -43,6 +43,22 @@ export default async function (fastify, opts) {
         options: Object.assign({}, opts),
     });
 
+    //Read bearer token from request header
+    fastify.addHook('preHandler', async (request, reply) => {
+        try {
+            const { authorization } = request.headers;
+
+            if (authorization) {
+                const token = authorization.split(' ')[1];
+                const data = await request.jwtVerify(token);
+                request.user = data;
+            }
+        } catch (error) {
+            request.log.error(error);
+            reply.status(401).send({ error: 'Unauthorized' });
+        }
+    });
+
     // This loads all plugins defined in routes
     // define your routes in one of these
     fastify.register(AutoLoad, {

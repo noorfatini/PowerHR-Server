@@ -40,6 +40,24 @@ class CompanyRoutes {
             this.registerCompany.bind(this),
         );
 
+        this.fastify.post(
+            '/check',
+            {
+                schema: {
+                    description: 'Check if a company exists',
+                    tags: ['Company'],
+                    body: {
+                        type: 'object',
+                        properties: {
+                            email: { type: 'string' },
+                        },
+                        required: ['email'],
+                    },
+                },
+            },
+            this.checkCompany.bind(this),
+        );
+
         this.fastify.get(
             '/:companyId',
             {
@@ -92,24 +110,6 @@ class CompanyRoutes {
                 },
             },
             this.updateCompany.bind(this),
-        );
-
-        this.fastify.post(
-            '/check',
-            {
-                schema: {
-                    description: 'Check if a company exists',
-                    tags: ['Company'],
-                    body: {
-                        type: 'object',
-                        properties: {
-                            email: { type: 'string' },
-                        },
-                        required: ['email'],
-                    },
-                },
-            },
-            this.checkCompany.bind(this),
         );
 
         this.fastify.get(
@@ -177,6 +177,17 @@ class CompanyRoutes {
             },
             this.updateDepartment.bind(this),
         );
+
+        this.fastify.get(
+            '/:companyId/analytic/turnover',
+            {
+                schema: {
+                    description: 'Get company turnover',
+                    tags: ['Company'],
+                },
+            },
+            this.getCompanyTurnover.bind(this),
+        );
     }
 
     async registerCompany(request, reply) {
@@ -221,6 +232,13 @@ class CompanyRoutes {
 
         const company = await this.enterpriseFacade.updateCompany(companyId, data);
 
+        await this.enterpriseFacade.logAction(
+            request.user.id,
+            companyId,
+            'Company updated',
+            `Company ${companyId} updated`,
+        );
+
         reply.send({
             company,
             message: 'Company updated',
@@ -245,9 +263,7 @@ class CompanyRoutes {
 
     async getEmployees(request, reply) {
         const { companyId } = request.params;
-
         const employees = await this.enterpriseFacade.getEmployees(companyId);
-
         reply.send({ employees });
     }
 
@@ -255,6 +271,13 @@ class CompanyRoutes {
         try {
             const data = request.body;
             const employee = await this.enterpriseFacade.registerEmployee(data);
+
+            await this.enterpriseFacade.logAction(
+                request.user.id,
+                request.user.company,
+                'Employee registered',
+                `Employee ${employee._id} registered`,
+            );
 
             reply.status(201).send({
                 employee,
@@ -276,6 +299,13 @@ class CompanyRoutes {
             const data = request.body;
 
             const employee = await this.enterpriseFacade.updateEmployee(employeeId, data);
+
+            await this.enterpriseFacade.logAction(
+                request.user.id,
+                request.user.company,
+                'Employee updated',
+                `Employee ${employeeId} updated`,
+            );
 
             reply.send({
                 employee,
@@ -306,6 +336,13 @@ class CompanyRoutes {
 
             const department = await this.enterpriseFacade.createDepartment(companyId, name, underDepartment);
 
+            await this.enterpriseFacade.logAction(
+                request.user.id,
+                companyId,
+                'Department created',
+                `Department ${department._id} created`,
+            );
+
             reply.status(201).send({
                 department,
                 message: 'Department created',
@@ -327,10 +364,35 @@ class CompanyRoutes {
 
             const department = await this.enterpriseFacade.updateDepartment(departmentId, data);
 
+            await this.enterpriseFacade.logAction(
+                request.user.id,
+                request.user.company,
+                'Department updated',
+                `Department ${departmentId} updated`,
+            );
+
             reply.send({
                 department,
                 message: 'Department updated',
             });
+        } catch (error) {
+            if (error instanceof ApiError) {
+                return reply.status(error.statusCode).send({ error: error.message });
+            } else {
+                request.log.error(error);
+                reply.status(500).send({ error: error.message || 'Something went wrong' });
+            }
+        }
+    }
+
+    async getCompanyTurnover(request, reply) {
+        try {
+            const { companyId } = request.params;
+            const { from, to } = request.query;
+
+            const turnover = await this.enterpriseFacade.getTurnOver(companyId, from, to);
+
+            reply.send({ turnover });
         } catch (error) {
             if (error instanceof ApiError) {
                 return reply.status(error.statusCode).send({ error: error.message });

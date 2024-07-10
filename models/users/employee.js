@@ -46,6 +46,7 @@ const employeeSchema = new mongoose.Schema(
 
         hireDate: {
             type: Date,
+            default: Date.now,
         },
 
         terminationDate: {

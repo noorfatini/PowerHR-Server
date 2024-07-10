@@ -10,7 +10,7 @@
     "scripts": {
         "test": "vitest",
         "test:coverage": "vitest run --coverage",
-        "start": "node index.js",
+        "start": "fastify start app.js",
         "lint": "eslint .",
         "prettier": "prettier --config .prettierrc --write .",
         "prettier:check": "prettier --config .prettierrc --check .",

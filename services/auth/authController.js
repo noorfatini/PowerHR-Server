@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import Authentication from '../../models/auth/authentication.js';
 import Jwt from '../../util/Jwt.js';
 import Email from '../../util/Email.js';
+import dayjs from 'dayjs';
 
 const frontEndUrl = process.env.FRONTEND_URL;
 
@@ -82,6 +83,10 @@ class AuthController {
 
         const authentication = await Authentication.findOne({ user: user._id });
 
+        if (user?.terminationDate && dayjs(user.terminationDate).isBefore(dayjs().subtract(1, 'day'))) {
+            throw new ApiError(401, 'Account deleted');
+        }
+
         if (!authentication.active) {
             throw new ApiError(401, 'Account not activated');
         }
@@ -94,7 +99,9 @@ class AuthController {
 
         const userPublic = await this.userFactory.getMe(user._id);
 
-        return userPublic;
+        const token = Jwt.generateToken({ id: user._id, type: 'access', company: user?.company }, '1d');
+
+        return { user: userPublic, token };
     }
 
     async resetPasswordEmail(email) {
