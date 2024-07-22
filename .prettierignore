@@ -8,3 +8,5 @@
 build/*
 coverage/*
 jmeter/*
+report/*
+serviceAccountKey.json
