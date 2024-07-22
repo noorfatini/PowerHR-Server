@@ -16,7 +16,7 @@ const applicationSchema = mongoose.Schema({
     status: {
         statusType: {
             type: String,
-            enum: ['New', 'Viewed', 'Interview', 'Rejected', 'Accepted', 'Withdrawn', 'Other', 'Closed', 'Deleted'],
+            enum: ['New', 'Viewed', 'Interviewed', 'Rejected', 'Accepted', 'Withdrawn', 'Other', 'Closed', 'Deleted'],
             default: 'New',
         },
         reason: {

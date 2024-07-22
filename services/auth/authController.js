@@ -4,10 +4,11 @@ import bcrypt from 'bcrypt';
 import Authentication from '../../models/auth/authentication.js';
 import Jwt from '../../util/Jwt.js';
 import Email from '../../util/Email.js';
+import dayjs from 'dayjs';
 
 const frontEndUrl = process.env.FRONTEND_URL;
 
-class AuthFacade {
+class AuthController {
     constructor() {
         this.userFactory = new UserFactory();
     }
@@ -22,6 +23,7 @@ class AuthFacade {
             token: {
                 activate: {
                     token,
+                    changePassword: role !== 'applicant',
                 },
             },
         });
@@ -30,12 +32,16 @@ class AuthFacade {
         const subject = 'Account Activation';
         const text = `Hello ${user.firstName} ${user.lastName},\n\nPlease verify your account by clicking the following link: ${frontEndUrl}/activate?token=${token}\n`;
 
-        await Email.sendEmail(user.email, subject, text);
+        if (role === 'applicant') {
+            await Email.sendEmail(user.email, subject, text);
+        } else {
+            await Email.sendEmail(user.personalEmail, subject, text);
+        }
 
         return user;
     }
 
-    async activate(token) {
+    async activate(token, password = null, confirmPassword = null) {
         const authentication = await Authentication.findOne({ 'token.activate.token': token });
 
         if (!authentication) {
@@ -49,6 +55,12 @@ class AuthFacade {
         }
 
         authentication.active = true;
+        authentication.token.activate.token = undefined;
+
+        if (password && confirmPassword) {
+            await this.userFactory.changePassword(authentication.user, password, confirmPassword);
+            authentication.token.activate.changePassword = false;
+        }
 
         await authentication.save();
 
@@ -71,6 +83,10 @@ class AuthFacade {
 
         const authentication = await Authentication.findOne({ user: user._id });
 
+        if (user?.terminationDate && dayjs(user.terminationDate).isBefore(dayjs().subtract(1, 'day'))) {
+            throw new ApiError(401, 'Account deleted');
+        }
+
         if (!authentication.active) {
             throw new ApiError(401, 'Account not activated');
         }
@@ -81,7 +97,11 @@ class AuthFacade {
             throw new ApiError(401, 'Invalid email or password');
         }
 
-        return user;
+        const userPublic = await this.userFactory.getMe(user._id);
+
+        const token = Jwt.generateToken({ id: user._id, type: 'access', company: user?.company }, '1d');
+
+        return { user: userPublic, token };
     }
 
     async resetPasswordEmail(email) {
@@ -150,6 +170,11 @@ class AuthFacade {
 
         await this.userFactory.changePassword(authentication.user, password, confirmPassword);
 
+        authentication.token.reset.token = undefined;
+        authentication.token.reset.counter = 0;
+
+        await authentication.save();
+
         return true;
     }
 
@@ -169,8 +194,14 @@ class AuthFacade {
             throw new ApiError(400, 'Token expired');
         }
 
+        return authentication;
+    }
+
+    async changePassword(id, newPassword, confirmPassword, oldPassword) {
+        await this.userFactory.changePassword(id, newPassword, confirmPassword, oldPassword);
+
         return true;
     }
 }
 
-export default AuthFacade;
+export default AuthController;

@@ -6,6 +6,20 @@ const companySchema = Schema({
         required: true,
     },
 
+    description: String,
+
+    page: {
+        header: {
+            title: String,
+            content: String,
+        },
+
+        body: {
+            title: String,
+            content: String,
+        },
+    },
+
     createdDate: {
         type: Date,
         default: Date.now,
@@ -36,40 +50,9 @@ const companySchema = Schema({
         index: true,
     },
 
-    active: {
-        until: {
-            type: Date,
-            required: true,
-        },
-    },
-
-    payment: {
-        cardNumber: String,
-        expiryDate: String,
-        cvc: String,
-        nameOnCard: String,
-        zip: String,
-
-        history: [
-            {
-                date: {
-                    type: Date,
-                    required: true,
-                },
-                ref: {
-                    type: String,
-                    required: true,
-                },
-            },
-        ],
-    },
-
-    branch: {
-        isBranch: { type: Boolean, default: false },
-        parentCompany: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Company',
-        },
+    parentCompany: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Company',
     },
 });
 

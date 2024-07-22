@@ -1,6 +1,6 @@
 import Resume from '../../models/resume/resume.js';
 
-class ResumeFacade {
+class ResumeController {
     async createResume(userId) {
         await Resume.create({ user: userId });
     }
@@ -10,4 +10,4 @@ class ResumeFacade {
     }
 }
 
-export default ResumeFacade;
+export default ResumeController;

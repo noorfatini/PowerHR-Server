@@ -1,9 +1,9 @@
-import ResumeFacade from '../../services/resume/resumeFacade.js';
+import ResumeController from '../../services/resume/resumeController.js';
 
 class ResumeRoutes {
     constructor(fastify) {
         this.fastify = fastify;
-        this.resumeFacade = new ResumeFacade();
+        this.resumeController = new ResumeController();
         this.initRoutes();
     }
 
@@ -24,7 +24,7 @@ class ResumeRoutes {
         try {
             const resume = request.body;
 
-            await this.resumeFacade.updateResume(resume);
+            await this.resumeController.updateResume(resume);
 
             reply.status(200).send({ message: 'Resume updated' });
         } catch (error) {

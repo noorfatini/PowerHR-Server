@@ -3,7 +3,7 @@ import Employee from '../../models/users/employee.js';
 import User from '../../models/users/user.js';
 import SysAdmin from '../../models/users/sysadmin.js';
 import ApiError from '../../util/ApiError.js';
-import ResumeFacade from '../resume/resumeFacade.js';
+import ResumeController from '../resume/resumeController.js';
 
 class UserFactory {
     /**
@@ -11,7 +11,7 @@ class UserFactory {
      * @constructor
      */
     constructor() {
-        this.resumeFacade = new ResumeFacade();
+        this.resumeController = new ResumeController();
     }
 
     /**
@@ -21,7 +21,21 @@ class UserFactory {
      * @returns {object} - The created user
      */
     async createUser(role, args) {
-        const { firstName, lastName, email, gender, password, confirmPassword, companyId, jobTitle } = args;
+        const {
+            firstName,
+            lastName,
+            email,
+            gender,
+            password,
+            confirmPassword,
+            company,
+            jobTitle,
+            department,
+            personalEmail,
+            hireDate,
+            terminationDate,
+            salary,
+        } = args;
 
         const userExists = await User.exists({ email });
 
@@ -54,8 +68,13 @@ class UserFactory {
                     email,
                     gender,
                     password: '123456',
-                    company: companyId,
+                    company: company,
                     jobTitle: jobTitle || 'Unassigned',
+                    department: department,
+                    personalEmail,
+                    hireDate,
+                    terminationDate,
+                    salary,
                 });
             case 'sysadmin':
                 return new SysAdmin({
@@ -83,7 +102,7 @@ class UserFactory {
 
         if (role === 'applicant') {
             await user.save();
-            await this.resumeFacade.createResume(user._id);
+            await this.resumeController.createResume(user._id);
         } else {
             await user.save();
         }
@@ -157,6 +176,17 @@ class UserFactory {
     }
 
     /**
+     * Filters a user's information
+     * @param {string} id - The id of the user
+     * @returns {object} - The filtered user
+     */
+    async getMe(id) {
+        const user = await User.findById(id);
+
+        return user.getMe();
+    }
+
+    /**
      * Saves a user
      * @param {object} user - The user to save
      */
@@ -212,6 +242,42 @@ class UserFactory {
         user.password = newPassword;
 
         await user.save();
+    }
+
+    /**
+     * Deletes a user
+     * @param {string} id - The id of the user
+     */
+    async delete(id) {
+        await User.findByIdAndDelete(id);
+    }
+
+    /**
+     * updated user information
+     * @param {string} role - The role of the user
+     * @param {JSON} args - The user's information
+     * @returns {object} - The updated user
+     */
+
+    async update(role, id, args) {
+        switch (role) {
+            case 'applicant':
+                await Applicant.findByIdAndUpdate(id, args);
+                break;
+            case 'employee':
+                await Employee.findByIdAndUpdate(id, args);
+                break;
+            case 'sysadmin':
+                await SysAdmin.findByIdAndUpdate(id, args);
+                break;
+            case 'user':
+                await User.findByIdAndUpdate(id, args);
+                break;
+            default:
+                throw new ApiError(400, 'Invalid role');
+        }
+
+        return this.getMe(id);
     }
 }
 
