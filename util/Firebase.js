@@ -1,22 +1,24 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from 'firebase/app';
-import { getStorage } from 'firebase/storage';
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getStorage } from 'firebase-admin/storage';
+import serviceAccount from './serviceAccountKey.json' assert { type: 'json' };
 
 const firebaseConfig = {
-    apiKey: 'AIzaSyAYfTaYKBoBM8a3deBolqJ64dFGzBwKj9Q',
-    authDomain: 'utmpowerhr01.firebaseapp.com',
-    projectId: 'utmpowerhr01',
-    storageBucket: 'utmpowerhr01.appspot.com',
-    messagingSenderId: '990019068048',
-    appId: '1:990019068048:web:adec91012ce81d61f8b815',
-    measurementId: 'G-EZ4CMZSBGZ',
+    credential: cert(serviceAccount),
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.FIREBASE_APP_ID,
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
 
 class Firebase {
     // Singleton
-    static getInstance() {
+
+    static async getInstance() {
         if (!Firebase.instance) {
             Firebase.instance = new Firebase();
         }
@@ -25,7 +27,26 @@ class Firebase {
 
     constructor() {
         initializeApp(firebaseConfig);
-        this.storage = getStorage();
+        this.bucket = getStorage().bucket();
+    }
+
+    getBucket() {
+        return this.bucket;
+    }
+
+    async uploadFile(fileName, fileBuffer, metadata) {
+        const uniqueFileName = `${Date.now()}-${fileName}`;
+        const file = this.bucket.file(uniqueFileName);
+        await file.save(fileBuffer, {
+            metadata,
+        });
+
+        const [url] = await file.getSignedUrl({
+            action: 'read',
+            expires: '03-09-2491',
+        });
+
+        return url;
     }
 }
 

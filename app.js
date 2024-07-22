@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 const ENV = process.env.NODE_ENV;
 import * as dotenv from 'dotenv';
 import Firebase from './util/Firebase.js';
+import Ajv from 'ajv';
 
 dotenv.config();
 
@@ -16,8 +17,28 @@ export const options = {};
 export default async function (fastify, opts) {
     // Place here your custom code!
 
+    const ajv = new Ajv({
+        useDefaults: true,
+        coerceTypes: true,
+        $data: true,
+        extendRefs: true,
+    });
+
+    ajv.addKeyword('isFile', {
+        compile: (schema, parent) => {
+            parent.type = 'file';
+            delete parent.isFileType;
+            return () => true;
+        },
+    });
+
+    fastify.setValidatorCompiler(function (schemaDefinition) {
+        const { schema } = schemaDefinition;
+        return ajv.compile(schema);
+    });
+
     if (ENV !== 'test') {
-        Firebase.getInstance();
+        await Firebase.getInstance();
 
         const DB_URL = process.env.DB_URL;
         await mongoose

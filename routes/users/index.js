@@ -1,5 +1,6 @@
 import UserFactory from '../../services/users/userFactory.js';
 import ApiError from '../../util/ApiError.js';
+import Firebase from '../../util/Firebase.js';
 
 class UserRoutes {
     constructor(fastify) {
@@ -53,6 +54,32 @@ class UserRoutes {
             },
             this.updateUser.bind(this),
         );
+
+        this.fastify.post(
+            '/upload/profile-picture/:id',
+            {
+                schema: {
+                    description: 'Upload a profile picture for a user',
+                    tags: ['User'],
+                    consumes: ['multipart/form-data'],
+                    params: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'string' },
+                        },
+                        required: ['id'],
+                    },
+                    body: {
+                        type: 'object',
+                        properties: {
+                            file: { isFile: true },
+                        },
+                        required: ['file'],
+                    },
+                },
+            },
+            this.uploadProfilePicture.bind(this),
+        );
     }
 
     async getUser(request, reply) {
@@ -92,6 +119,32 @@ class UserRoutes {
                 reply.status(500).send({ error: error.message || 'Something went wrong' });
             }
         }
+    }
+
+    async uploadProfilePicture(request, reply) {
+        const id = request.params.id;
+        const data = await request.body.file.toBuffer();
+
+        const fileName = request.body.file.filename;
+        const metadata = {
+            contentType: request.body.file.mimetype,
+        };
+
+        if (metadata.contentType !== 'image/jpeg' && metadata.contentType !== 'image/png') {
+            return reply.status(400).send({ error: 'Invalid file type' });
+        }
+
+        const fileBuffer = Buffer.from(data);
+
+        const firebase = await Firebase.getInstance();
+
+        const url = await firebase.uploadFile(fileName, fileBuffer, metadata);
+
+        const user = await this.userFactory.update('user', id, {
+            profilePicture: url,
+        });
+
+        return reply.send(user);
     }
 }
 

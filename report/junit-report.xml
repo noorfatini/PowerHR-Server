@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="6" failures="0" errors="0" time="5.757">
+    <testsuite name="test/routes/root.test.js" timestamp="2024-07-17T07:53:20.367Z" hostname="Evy" tests="4" failures="0" errors="0" skipped="0" time="2.94">
+        <testcase classname="test/routes/root.test.js" name="routes/root.js &gt; should return id" time="0.518">
+        </testcase>
+        <testcase classname="test/routes/root.test.js" name="routes/root.js &gt; should return root, env" time="0.53">
+        </testcase>
+        <testcase classname="test/routes/root.test.js" name="routes/root.js &gt; should return root" time="0.531">
+        </testcase>
+        <testcase classname="test/routes/root.test.js" name="routes/root.js &gt; should return body" time="0.522">
+        </testcase>
+    </testsuite>
+    <testsuite name="test/routes/auth/index.test.js" timestamp="2024-07-17T07:53:20.375Z" hostname="Evy" tests="2" failures="0" errors="0" skipped="0" time="2.929">
+        <testcase classname="test/routes/auth/index.test.js" name="routes/authentication/index.js &gt; Login with invalid email" time="0.577">
+        </testcase>
+        <testcase classname="test/routes/auth/index.test.js" name="routes/authentication/index.js &gt; Login with invalid password" time="0.585">
+        </testcase>
+    </testsuite>
+</testsuites>

@@ -11,6 +11,7 @@ export default fp(async (fastify) => {
                 description: 'Testing the Fastify swagger API',
                 version: '0.1.0',
             },
+            consumes: ['application/json', 'multipart/form-data'],
         },
     });
 
