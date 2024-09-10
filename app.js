@@ -36,7 +36,7 @@ export default async function (fastify, opts) {
         return ajv.compile(schema);
     });
 
-    if (ENV !== 'test') {
+    if (ENV === 'development' || ENV === 'production') {
         const { default: Firebase } = await import('./util/Firebase.js');
         await Firebase.getInstance();
 
