@@ -1,7 +1,8 @@
 node_modules/
 dist/
 *.env
-
+serviceAccountKey.json
 package-lock.json
 .vercel
 coverage/
+report/

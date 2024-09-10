@@ -4,9 +4,14 @@
         "es6": true,
         "node": true
     },
+    "parser": "@babel/eslint-parser",
     "parserOptions": {
         "ecmaVersion": 2020,
-        "sourceType": "module"
+        "sourceType": "module",
+        "requireConfigFile": false,
+        "babelOptions": {
+            "plugins": ["@babel/plugin-syntax-import-assertions"]
+        }
     },
     "plugins": ["jest"],
     "extends": ["eslint:recommended", "plugin:jest/recommended", "prettier"],

@@ -9,9 +9,24 @@ const employeeSchema = new mongoose.Schema(
             required: true,
         },
 
+        address: {
+            street: String,
+            city: String,
+            state: String,
+            zip: String,
+            country: String,
+        },
+
+        phone: String,
+
         department: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Department',
+        },
+
+        personalEmail: {
+            type: String,
+            required: true,
         },
 
         jobTitle: {
@@ -22,6 +37,24 @@ const employeeSchema = new mongoose.Schema(
         reportTo: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Employee',
+        },
+
+        salary: {
+            type: Number,
+            required: true,
+        },
+
+        hireDate: {
+            type: Date,
+            default: Date.now,
+        },
+
+        terminationDate: {
+            type: Date,
+        },
+
+        contract: {
+            type: String,
         },
     },
     {

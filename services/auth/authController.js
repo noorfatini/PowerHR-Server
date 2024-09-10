@@ -4,10 +4,11 @@ import bcrypt from 'bcrypt';
 import Authentication from '../../models/auth/authentication.js';
 import Jwt from '../../util/Jwt.js';
 import Email from '../../util/Email.js';
+import dayjs from 'dayjs';
 
 const frontEndUrl = process.env.FRONTEND_URL;
 
-class AuthFacade {
+class AuthController {
     constructor() {
         this.userFactory = new UserFactory();
     }
@@ -31,7 +32,11 @@ class AuthFacade {
         const subject = 'Account Activation';
         const text = `Hello ${user.firstName} ${user.lastName},\n\nPlease verify your account by clicking the following link: ${frontEndUrl}/activate?token=${token}\n`;
 
-        await Email.sendEmail(user.email, subject, text);
+        if (role === 'applicant') {
+            await Email.sendEmail(user.email, subject, text);
+        } else {
+            await Email.sendEmail(user.personalEmail, subject, text);
+        }
 
         return user;
     }
@@ -78,6 +83,10 @@ class AuthFacade {
 
         const authentication = await Authentication.findOne({ user: user._id });
 
+        if (user?.terminationDate && dayjs(user.terminationDate).isBefore(dayjs().subtract(1, 'day'))) {
+            throw new ApiError(401, 'Account deleted');
+        }
+
         if (!authentication.active) {
             throw new ApiError(401, 'Account not activated');
         }
@@ -88,7 +97,11 @@ class AuthFacade {
             throw new ApiError(401, 'Invalid email or password');
         }
 
-        return user;
+        const userPublic = await this.userFactory.getMe(user._id);
+
+        const token = Jwt.generateToken({ id: user._id, type: 'access', company: user?.company }, '1d');
+
+        return { user: userPublic, token };
     }
 
     async resetPasswordEmail(email) {
@@ -183,6 +196,12 @@ class AuthFacade {
 
         return authentication;
     }
+
+    async changePassword(id, newPassword, confirmPassword, oldPassword) {
+        await this.userFactory.changePassword(id, newPassword, confirmPassword, oldPassword);
+
+        return true;
+    }
 }
 
-export default AuthFacade;
+export default AuthController;

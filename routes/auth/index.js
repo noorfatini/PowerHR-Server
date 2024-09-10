@@ -1,10 +1,10 @@
 import ApiError from '../../util/ApiError.js';
-import AuthFacade from '../../services/auth/authFacade.js';
+import AuthController from '../../services/auth/authController.js';
 
 class AuthRoutes {
     constructor(fastify) {
         this.fastify = fastify;
-        this.authFacade = new AuthFacade();
+        this.authController = new AuthController();
         this.initRoutes();
     }
 
@@ -25,23 +25,6 @@ class AuthRoutes {
                         },
                     },
                     response: {
-                        200: {
-                            description: 'Successful response',
-                            type: 'object',
-                            properties: {
-                                user: {
-                                    type: 'object',
-                                    properties: {
-                                        _id: { type: 'string' },
-                                        email: { type: 'string' },
-                                        role: { type: 'string' },
-                                        firstName: { type: 'string' },
-                                        lastName: { type: 'string' },
-                                    },
-                                },
-                                token: { type: 'string' },
-                            },
-                        },
                         401: {
                             description: 'Unauthorized',
                             type: 'object',
@@ -367,30 +350,66 @@ class AuthRoutes {
             },
             this.registerSysAdmin.bind(this),
         );
+
+        this.fastify.post(
+            '/change-password/:id',
+            {
+                schema: {
+                    description: 'Change Password',
+                    tags: ['Auth', 'Authentication'],
+                    summary: 'Change Password',
+                    params: {
+                        type: 'object',
+                        required: ['id'],
+                        properties: {
+                            id: { type: 'string' },
+                        },
+                    },
+                    body: {
+                        type: 'object',
+                        required: ['oldPassword', 'newPassword', 'confirmPassword'],
+                        properties: {
+                            oldPassword: { type: 'string' },
+                            newPassword: { type: 'string' },
+                            confirmPassword: { type: 'string' },
+                        },
+                    },
+                    response: {
+                        200: {
+                            description: 'Successful response',
+                            type: 'object',
+                            properties: {
+                                message: { type: 'string' },
+                            },
+                        },
+                        400: {
+                            description: 'Bad Request',
+                            type: 'object',
+                            properties: {
+                                error: { type: 'string' },
+                            },
+                        },
+                        500: {
+                            description: 'Internal Server Error',
+                            type: 'object',
+                            properties: {
+                                error: { type: 'string' },
+                            },
+                        },
+                    },
+                },
+            },
+            this.changePassword.bind(this),
+        );
     }
 
     async login(request, reply) {
         try {
             const { email, password } = request.body;
 
-            const user = await this.authFacade.login(email, password);
+            const { user, token } = await this.authController.login(email, password);
 
-            const userData = {
-                _id: user._id,
-                email: user.email,
-                role: user.__t,
-                firstName: user.firstName,
-                lastName: user.lastName,
-            };
-
-            const token = await reply.jwtSign(
-                {
-                    _id: user._id,
-                },
-                { expiresIn: '1h' },
-            );
-
-            return reply.code(200).send({ user: userData, token });
+            return reply.code(200).send({ user, token });
         } catch (error) {
             if (error instanceof ApiError) {
                 return reply.status(error.statusCode).send({ error: error.message });
@@ -405,7 +424,7 @@ class AuthRoutes {
         try {
             const { email } = request.body;
 
-            await this.authFacade.resetPasswordEmail(email);
+            await this.authController.resetPasswordEmail(email);
 
             return reply.code(200).send({ message: 'Email sent' });
         } catch (error) {
@@ -422,7 +441,7 @@ class AuthRoutes {
         try {
             const { password, confirmPassword, token } = request.body;
 
-            await this.authFacade.resetPassword(token, password, confirmPassword);
+            await this.authController.resetPassword(token, password, confirmPassword);
 
             return reply.code(200).send({ message: 'Password reset' });
         } catch (error) {
@@ -439,7 +458,7 @@ class AuthRoutes {
         try {
             const { token } = request.query;
 
-            const authentication = await this.authFacade.verifyToken(token);
+            const authentication = await this.authController.verifyToken(token);
 
             return reply
                 .code(200)
@@ -459,7 +478,7 @@ class AuthRoutes {
             const { token } = request.query;
             const { password, confirmPassword } = request.body;
 
-            await this.authFacade.activate(token, password, confirmPassword);
+            await this.authController.activate(token, password, confirmPassword);
 
             return reply.code(200).send({ message: 'Account activated' });
         } catch (error) {
@@ -475,7 +494,7 @@ class AuthRoutes {
     async registerApplicant(request, reply) {
         try {
             const data = request.body;
-            const applicant = this.authFacade.register('applicant', data);
+            const applicant = this.authController.register('applicant', data);
 
             reply.status(201).send({
                 message: 'Applicant registered successfully',
@@ -496,7 +515,7 @@ class AuthRoutes {
     async registerEmployee(request, reply) {
         try {
             const data = request.body;
-            const employee = this.authFacade.register('employee', data);
+            const employee = this.authController.register('employee', data);
 
             reply.status(201).send({
                 message: 'Employee registered successfully',
@@ -517,7 +536,7 @@ class AuthRoutes {
     async registerSysAdmin(request, reply) {
         try {
             const data = request.body;
-            const sysadmin = this.authFacade.register('sysadmin', data);
+            const sysadmin = this.authController.register('sysadmin', data);
 
             reply.status(201).send({
                 message: 'SysAdmin registered successfully',
@@ -525,6 +544,24 @@ class AuthRoutes {
                     id: sysadmin._id,
                 },
             });
+        } catch (error) {
+            if (error instanceof ApiError) {
+                return reply.status(error.statusCode).send({ error: error.message });
+            } else {
+                request.log.error(error);
+                reply.status(500).send({ error: error.message || 'Something went wrong' });
+            }
+        }
+    }
+
+    async changePassword(request, reply) {
+        try {
+            const { oldPassword, newPassword, confirmPassword } = request.body;
+            const { id } = request.params;
+
+            await this.authController.changePassword(id, newPassword, confirmPassword, oldPassword);
+
+            return reply.code(200).send({ message: 'Password changed' });
         } catch (error) {
             if (error instanceof ApiError) {
                 return reply.status(error.statusCode).send({ error: error.message });
