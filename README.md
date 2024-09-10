@@ -16,7 +16,7 @@ cd powerhr-server
 To install the necessary dependencies, run:
 
 ```sh
-npm install
+npm install or npm i
 ```
 
 ### Environment Variables
