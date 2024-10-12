@@ -91,19 +91,17 @@ jobs:
     Test:
         runs-on: ubuntu-latest
         needs: [Lint-Check, Format-Check, Build]
-        env:
-            NODE_ENV: test
-            SECRET: test
         steps:
             - name: Use build artifacts
               uses: actions/checkout@v4
               with:
                   path: ${{ github.workspace }}
             - name: Load & Cache Dependencies
-              uses: ./.github/actions/cached-deps
+              uses: ./.github/actions/cached-deps    
 
-            - name: Load .env.test
-              run: cp ./test/.env.test .env       
+            # Set NODE_ENV to 'test' explicitly for the test stage
+            - name: Set NODE_ENV to 'test'
+              run: echo "NODE_ENV=test" >> $GITHUB_ENV
 
             - name: Run Tests
               run: npm run test
