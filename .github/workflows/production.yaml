@@ -96,9 +96,6 @@ jobs:
             - name: Load & Cache Dependencies
               uses: ./.github/actions/cached-deps
 
-            - name: Create .env file
-              run: echo "NODE_ENV=test" >> .env
-
             - name: Run Tests
               run: npm run test
 
