@@ -91,6 +91,9 @@ jobs:
     Test:
         runs-on: ubuntu-latest
         needs: [Lint-Check, Format-Check, Build]
+        env:
+            ENV: test
+            SECRET: test
         steps:
             - name: Use build artifacts
               uses: actions/checkout@v4
