@@ -7,7 +7,6 @@ import Ajv from 'ajv';
 
 dotenv.config();
 const ENV = process.env.NODE_ENV;
-console.log('App running in', ENV, 'mode');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -38,11 +37,6 @@ export default async function (fastify, opts) {
     });
 
     if (ENV !== 'test') {
-        console.log('This is not a test environment', ENV);
-
-        const { default: Firebase } = await import('./util/Firebase.js');
-        await Firebase.getInstance();
-
         const DB_URL = process.env.DB_URL;
         await mongoose
             .connect(DB_URL)

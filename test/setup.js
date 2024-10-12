@@ -5,8 +5,6 @@ import fastify from 'fastify';
 import { afterAll, beforeAll, afterEach } from 'vitest';
 
 dotenv.config({ path: './test/.env.test' });
-console.log(process.env.NODE_ENV);
-console.log(process.env.JWT_SECRET);
 
 const app = fastify();
 // Register the routes from your Fastify application
