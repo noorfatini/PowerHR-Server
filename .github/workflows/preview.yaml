@@ -97,11 +97,7 @@ jobs:
               with:
                   path: ${{ github.workspace }}
             - name: Load & Cache Dependencies
-              uses: ./.github/actions/cached-deps    
-
-            # Set NODE_ENV to 'test' explicitly for the test stage
-            - name: Set NODE_ENV to 'test'
-              run: echo "NODE_ENV=test" >> $GITHUB_ENV
+              uses: ./.github/actions/cached-deps
 
             - name: Run Tests
               run: npm run test

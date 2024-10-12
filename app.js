@@ -7,6 +7,7 @@ import Ajv from 'ajv';
 
 dotenv.config();
 const ENV = process.env.NODE_ENV;
+console.log('App running in', ENV, 'mode');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
