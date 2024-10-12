@@ -5,6 +5,8 @@ import fastify from 'fastify';
 import { afterAll, beforeAll, afterEach } from 'vitest';
 
 dotenv.config({ path: './env.test' });
+process.env.NODE_ENV = 'test';
+process.env.JWT_SECRET = 'test';
 
 const app = fastify();
 // Register the routes from your Fastify application
@@ -14,8 +16,6 @@ let mongod;
 
 //Set up database connection before tests
 beforeAll(async () => {
-    process.env.NODE_ENV = 'test';
-    process.env.JWT_SECRET = 'test';
     mongod = new MongoMemoryServer();
     await mongod.start();
     await mongoose.connect(mongod.getUri());

@@ -2,7 +2,6 @@ import path from 'path';
 import AutoLoad from '@fastify/autoload';
 import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
-const ENV = process.env.NODE_ENV;
 import * as dotenv from 'dotenv';
 import Ajv from 'ajv';
 
@@ -36,6 +35,7 @@ export default async function (fastify, opts) {
         return ajv.compile(schema);
     });
 
+    const ENV = process.env.NODE_ENV;
     if (ENV !== 'test') {
         const { default: Firebase } = await import('./util/Firebase.js');
         await Firebase.getInstance();
