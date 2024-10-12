@@ -2,11 +2,11 @@ import path from 'path';
 import AutoLoad from '@fastify/autoload';
 import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
-const ENV = process.env.NODE_ENV;
 import * as dotenv from 'dotenv';
 import Ajv from 'ajv';
 
 dotenv.config();
+const ENV = process.env.NODE_ENV;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

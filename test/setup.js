@@ -4,7 +4,8 @@ import dotenv from 'dotenv';
 import fastify from 'fastify';
 import { afterAll, beforeAll, afterEach } from 'vitest';
 
-dotenv.config({ path: 'test/.env.test' });
+dotenv.config({ path: './test/.env.test' });
+const ENV = process.env.JWT_SECRET;
 
 const app = fastify();
 // Register the routes from your Fastify application

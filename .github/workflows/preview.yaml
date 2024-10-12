@@ -102,6 +102,9 @@ jobs:
             - name: Load & Cache Dependencies
               uses: ./.github/actions/cached-deps
 
+            - name: Load .env.test
+              run: cp ./test/.env.test ./test/.env.test            
+
             - name: Run Tests
               run: npm run test
 
