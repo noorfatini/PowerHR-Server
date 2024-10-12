@@ -2,12 +2,11 @@ import path from 'path';
 import AutoLoad from '@fastify/autoload';
 import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
-const ENV = process.env.NODE_ENV;
 import * as dotenv from 'dotenv';
-import Firebase from './util/Firebase.js';
 import Ajv from 'ajv';
 
 dotenv.config();
+const ENV = process.env.NODE_ENV;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -38,6 +37,7 @@ export default async function (fastify, opts) {
     });
 
     if (ENV !== 'test') {
+        const { default: Firebase } = await import('./util/Firebase.js');
         await Firebase.getInstance();
 
         const DB_URL = process.env.DB_URL;

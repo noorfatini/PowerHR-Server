@@ -279,10 +279,6 @@ class FormRoutes {
             const { id, userId } = request.params;
             const { responses } = request.body;
 
-            console.log('responses', responses);
-            console.log('id', id);
-            console.log('userId', userId);
-
             await this.enterpriseFacade.submitForm(id, userId, responses);
 
             reply.status(200).send({ message: 'Form submitted' });

@@ -1,6 +1,5 @@
 import UserFactory from '../../services/users/userFactory.js';
 import ApiError from '../../util/ApiError.js';
-import Firebase from '../../util/Firebase.js';
 
 class UserRoutes {
     constructor(fastify) {
@@ -136,6 +135,7 @@ class UserRoutes {
 
         const fileBuffer = Buffer.from(data);
 
+        const { default: Firebase } = await import('../../util/Firebase.js');
         const firebase = await Firebase.getInstance();
 
         const url = await firebase.uploadFile(fileName, fileBuffer, metadata);
