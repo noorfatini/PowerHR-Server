@@ -37,6 +37,9 @@ export default async function (fastify, opts) {
     });
 
     if (ENV !== 'test') {
+        const { default: Firebase } = await import('./util/Firebase.js');
+        await Firebase.getInstance();
+
         const DB_URL = process.env.DB_URL;
         await mongoose
             .connect(DB_URL)

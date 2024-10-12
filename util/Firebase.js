@@ -1,6 +1,8 @@
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getStorage } from 'firebase-admin/storage';
 
+const ENV = process.env.NODE_ENV;
+
 const serviceAccount = {
     type: process.env.SERVICE_ACCOUNT_TYPE,
     project_id: process.env.SERVICE_ACCOUNT_PROJECT_ID,
@@ -39,8 +41,11 @@ class Firebase {
     }
 
     constructor() {
-        initializeApp(firebaseConfig);
-        this.bucket = getStorage().bucket();
+        //Edit this line to use Firebase in test environment
+        if (ENV !== 'test') {
+            initializeApp(firebaseConfig);
+            this.bucket = getStorage().bucket();
+        }
     }
 
     getBucket() {
