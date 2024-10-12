@@ -38,6 +38,8 @@ export default async function (fastify, opts) {
     });
 
     if (ENV !== 'test') {
+        console.log('This is not a test environment', ENV);
+
         const { default: Firebase } = await import('./util/Firebase.js');
         await Firebase.getInstance();
 
