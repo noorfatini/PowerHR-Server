@@ -1,3 +1,5 @@
+import Firebase from '../util/Firebase.js';
+
 class ExampleRoute {
     constructor(fastify) {
         this.fastify = fastify;
@@ -178,7 +180,6 @@ class ExampleRoute {
             contentType: request.body.file.mimetype,
         };
 
-        const { default: Firebase } = await import('../util/Firebase.js');
         const firebase = await Firebase.getInstance();
 
         const url = await firebase.uploadFile(fileName, fileBuffer, metadata);
